@@ -3,31 +3,34 @@ package com.telekom.iaplatformcli.generate.sourcecode
 import com.telekom.iaplatformcli.service.writer.IndentedWriter
 import org.springframework.stereotype.Component
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 @Component
 class KotlinSourceCode(val lmosImports: LmosImports) : SourceCode {
 
     override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>) {
         val writer = IndentedWriter(agentFile)
-        //in case of existing file, clear the file first
+        // in case of existing file, clear the file first
         agentFile.writeText("")
-        val packageDeclaration = "package ${packageName}"
+        val packageDeclaration = "package $packageName"
         val consolidatedImports = StringBuilder()
         lmosImports.getLmosImports().forEach { import -> consolidatedImports.append("\n$import") }
 
-        //consolidate all steps into a string
+        // consolidate all steps into a string
         val consolidatedSteps = StringBuilder()
-        steps.forEach { step -> consolidatedSteps.append("\n.step<$step>") }
+        steps.forEach { step ->
+            consolidatedSteps.append(
+                """
+                    .step<$step>()"""
+            )
+        }
 
-        val classBody = """
+        val classBodyStart = """
 const val NATCO_CODE = "natco_code"
 const val USER = "user"
             
             
 @Component
-class ${agentName} (
+class $agentName (
     private val stepExecutor: StepExecutor,
     private val tenantProvider: TenantProvider,
     private val userProvider: UserProvider,
@@ -46,8 +49,9 @@ class ${agentName} (
         return userProvider.setUser(user ?: UserInformation()) {
             tenantProvider.setTenant(tenant) {
                 val result = stepExecutor
-                    .seq()
-                    ${consolidatedSteps}
+                    .seq()""".trimIndent()
+
+        val classBodyEnd = """
                     .end()
                     .execute(input)
                 result
@@ -56,9 +60,11 @@ class ${agentName} (
     }
 }
         """.trimIndent()
-        writer.writeLine(packageDeclaration);
+        writer.writeLine(packageDeclaration)
         writer.writeLine(consolidatedImports.toString())
-        writer.writeLine(classBody)
+        writer.writeLine(classBodyStart)
+        writer.writeLine(consolidatedSteps.toString())
+        writer.writeLine(classBodyEnd)
     }
 
 }
