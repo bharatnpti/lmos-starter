@@ -41,7 +41,7 @@ class KotlinLmosImports : LmosImports {
     override fun getLmosImports(): List<String> {
         return listOf(
             LMOS_BOOT_PROPERTIES,
-           // PLATFORM_IMPORTS,
+            // PLATFORM_IMPORTS,
             LMOS_KERNEL_TENANT,
             LMOS_KERNEL_STEPS,
             LMOS_KERNEL_USER,

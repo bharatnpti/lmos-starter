@@ -13,7 +13,7 @@ class ProjectGenerator {
         dirName: String,
         packageName: String,
         agentName: String,
-        steps: List<String>
+        steps: List<String>,
     ) {
         createProjectStructure(dirName) // create directory upto project if not exist
         val projectPath = "$dirName/$projectName"
@@ -42,10 +42,9 @@ class ProjectGenerator {
         fun main(args: Array<String>) {
             runApplication<$className>(*args)
         }
-    """.trimIndent()
+        """.trimIndent()
 
         val filePath = "$projectPath/src/main/kotlin/$className.kt"
-
 
         val mainFile = File(filePath)
         mainFile.createNewFile()
@@ -60,14 +59,13 @@ class ProjectGenerator {
             kernel:
                 repositories:
                     conversation: memory
-    """.trimIndent()
+        """.trimIndent()
 
         File(resourceFolderPath).mkdirs()
         File("$resourceFolderPath/application.yml").writeText(applicationYmlContent)
 
         println("Spring Boot resource folder created successfully at $resourceFolderPath")
     }
-
 
     private fun createBuildFiles(dirName: String, packageName: String) {
         GradleBuildWriter().createBuildFiles(dirName, packageName)

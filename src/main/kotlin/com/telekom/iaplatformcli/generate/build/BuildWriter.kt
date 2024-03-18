@@ -36,7 +36,7 @@ class GradleBuildWriter : BuildWriter {
 
     private fun createGradleProperties(projectDir: String) {
         val gradlePropertiesFile = File(projectDir, "gradle.properties")
-        gradlePropertiesFile.writeText("") //write oneAI_MAVEN_USER credentials
+        gradlePropertiesFile.writeText("") // write oneAI_MAVEN_USER credentials
     }
 
     private fun createSettingsGradle(projectDir: String) {
