@@ -2,12 +2,10 @@ package com.telekom.iaplatformcli.generate.sourcecode
 
 import java.io.File
 import java.io.Writer
-import java.nio.file.FileSystem
-import java.nio.file.Files
-import java.nio.file.Path
 
 interface SourceCode {
     fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>)
+    fun createAgentConstantsCode(packageName: String, agentConstantsFile: File, agentConstantsClass: String)
 }
 
 class DefaultSourceCode(val indentingWriter: Writer) : SourceCode {
@@ -16,4 +14,7 @@ class DefaultSourceCode(val indentingWriter: Writer) : SourceCode {
         TODO("Not yet implemented")
     }
 
+    override fun createAgentConstantsCode(packageName: String, agentConstantsFile: File, agentConstantsClass: String) {
+        TODO("Not yet implemented")
+    }
 }

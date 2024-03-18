@@ -1,11 +1,10 @@
 package com.telekom.iaplatformcli
 
-import com.telekom.iaplatformcli.generate.AgentGenerator
-import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
-import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
+import com.telekom.iaplatformcli.generate.ProjectGenerator
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import kotlin.system.exitProcess
 
 @SpringBootApplication
 class LmosCliApplication : CommandLineRunner {
@@ -21,7 +20,9 @@ class LmosCliApplication : CommandLineRunner {
             } else if (currentOption != "") {
                 if (namedArgs.contains(currentOption)) {
                     namedArgs[currentOption]?.add(args[i])
-                } else namedArgs[currentOption] = mutableListOf(args[i])
+                } else {
+                    namedArgs[currentOption] = mutableListOf(args[i])
+                }
             }
             ++i
         }
@@ -29,29 +30,32 @@ class LmosCliApplication : CommandLineRunner {
     }
 
     override fun run(vararg args: String?) {
-
         println("inside the run of command line runner:")
         val validLists = mutableListOf<String>()
         println("printing args:" + args.forEach { validLists.add(it.orEmpty()) })
 
         val namedArgs = parseNamedArgumentsWithArray(validLists.toTypedArray())
 
+        if (namedArgs.size < 2) {
+            println("Insufficient arguments. Exiting...")
+            exitProcess(0)
+        }
+
         var projectDir = namedArgs["--dirName"].orEmpty()
         val packageName = namedArgs["--packageName"].orEmpty()
         val agentName = namedArgs["--agentName"].orEmpty()
+        val projectName = namedArgs["--projectName"].orEmpty()
 
         val steps = namedArgs["--steps"].orEmpty()
 
+        println("Project Name: $projectName")
         println("Project Directory: $projectDir")
         println("Package Name: $packageName")
         println("Agent Name: $agentName")
 
-        AgentGenerator(KotlinSourceCode(KotlinLmosImports())).generateAgent(
-            projectDir[0],
-            packageName[0],
-            agentName[0],
-            steps
-        )
+        ProjectGenerator().generateProject(projectName[0], projectDir[0], packageName[0], agentName[0], steps)
+        println("Successfully generated project: ${projectName[0]}")
+        exitProcess(0)
     }
 }
 

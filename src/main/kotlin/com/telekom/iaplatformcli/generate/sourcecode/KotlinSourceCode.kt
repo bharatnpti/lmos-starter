@@ -20,15 +20,12 @@ class KotlinSourceCode(val lmosImports: LmosImports) : SourceCode {
         steps.forEach { step ->
             consolidatedSteps.append(
                 """
-                    .step<$step>()"""
+                    .step<$step>()""",
             )
         }
 
         val classBodyStart = """
-const val NATCO_CODE = "natco_code"
-const val USER = "user"
-            
-            
+
 @Component
 class $agentName (
     private val stepExecutor: StepExecutor,
@@ -39,7 +36,7 @@ class $agentName (
 
     private val log = LoggerFactory.getLogger(this.javaClass)
 
-    override fun profile() = AgentProfile(name = "SupervisorAssistant", purpose = "", dp = "") // TODO
+    override fun profile() = AgentProfile(name = "$agentName", purpose = "", dp = "") // TODO
 
     override suspend fun executeInternal(input: Input): Output {
         val user = input.context<UserInformation?>(USER, null)
@@ -49,7 +46,8 @@ class $agentName (
         return userProvider.setUser(user ?: UserInformation()) {
             tenantProvider.setTenant(tenant) {
                 val result = stepExecutor
-                    .seq()""".trimIndent()
+                    .seq()
+        """.trimIndent()
 
         val classBodyEnd = """
                     .end()
@@ -61,10 +59,26 @@ class $agentName (
 }
         """.trimIndent()
         writer.writeLine(packageDeclaration)
+        // import agent constants first
+        writer.writeLine("import $packageName.*")
         writer.writeLine(consolidatedImports.toString())
         writer.writeLine(classBodyStart)
         writer.writeLine(consolidatedSteps.toString())
         writer.writeLine(classBodyEnd)
     }
 
+    override fun createAgentConstantsCode(packageName: String, agentConstantsFile: File, agentConstantsClass: String) {
+        val writer = IndentedWriter(agentConstantsFile)
+
+        writer.writeLine("package $packageName")
+
+        val agentConstants = this.lmosImports.getAgentConstants()
+        val consolidatedConstants = StringBuilder()
+        agentConstants.forEach { constant ->
+            consolidatedConstants.append(
+                "const val $constant\n",
+            )
+        }
+        writer.writeLine(consolidatedConstants.toString())
+    }
 }
