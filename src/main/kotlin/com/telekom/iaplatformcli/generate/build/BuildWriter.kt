@@ -2,18 +2,19 @@ package com.telekom.iaplatformcli.generate.build
 
 import com.telekom.iaplatformcli.constants.GradleConstants
 import com.telekom.iaplatformcli.service.writer.IndentedWriter
+import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
 
 interface BuildWriter {
-    fun createBuildFiles(projectDir: String, packageName: String): BuildWriter
+    fun createBuildFiles(projectDir: String, packageName: String, projectName: String): BuildWriter
     fun getProjectType(): String
 }
 
 class GradleBuildWriter : BuildWriter {
     private val buildType = "GRADLE"
 
-    override fun createBuildFiles(projectDir: String, packageName: String): BuildWriter {
-        createBuildGradle(projectDir, packageName)
+    override fun createBuildFiles(projectDir: String, packageName: String, projectName: String): BuildWriter {
+        createBuildGradle(projectDir, packageName, projectName)
         createSettingsGradle(projectDir)
         createGradleProperties(projectDir)
         createGradleWrappers(projectDir)
@@ -32,11 +33,13 @@ class GradleBuildWriter : BuildWriter {
         ${GradleConstants.GRADLE_WRAPPER_PROPERTIES}
             """.trimIndent(),
         )
+
+        FileUtil.copyResourceToDirectory("gradle-wrapper.jar", gradleWrapperDir.absolutePath)
     }
 
     private fun createGradleProperties(projectDir: String) {
         val gradlePropertiesFile = File(projectDir, "gradle.properties")
-        gradlePropertiesFile.writeText("") // write oneAI_MAVEN_USER credentials
+        gradlePropertiesFile.writeText("one.plugin.service=true") // write oneAI_MAVEN_USER credentials
     }
 
     private fun createSettingsGradle(projectDir: String) {
@@ -51,22 +54,21 @@ class GradleBuildWriter : BuildWriter {
         )
     }
 
-    private fun createBuildGradle(projectDir: String, packageName: String) {
+    private fun createBuildGradle(projectDir: String, packageName: String, projectName: String) {
         val buildFile = File("$projectDir/build.gradle.kts")
         val writer = IndentedWriter(buildFile)
         // remove any existing content from file
         buildFile.writeText("")
         writer.writeLine(GradleConstants.GRADLE_PLUGIN)
         writer.writeLine("group = \"$packageName\"")
-        writer.writeLine(
-            """
-        version = "0.0.1-SNAPSHOT"
-        
-        dependencies {
-            ${GradleConstants.GRADLE_DEPENDENCIES}
-        }
-            """.trimIndent(),
-        )
+        writer.writeLine("version = \"0.0.1-SNAPSHOT\"")
+
+        writer.writeLine("dependencies {\n")
+        writer.writeLine(GradleConstants.GRADLE_DEPENDENCIES + "\n}")
+
+        writer.writeLine(GradleConstants.GRADLE_COMPATIBILITY)
+        // writer.writeLine(GradleConstants.GRADLE_TASK_KOTLIN)
+        writer.writeLine(GradleConstants.GRADLE_TASK_JAR.format(projectName))
     }
 
     override fun getProjectType(): String {

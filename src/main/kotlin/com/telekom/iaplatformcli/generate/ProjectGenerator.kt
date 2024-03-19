@@ -4,6 +4,7 @@ import com.telekom.iaplatformcli.generate.agent.AgentGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
+import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
 
 class ProjectGenerator {
@@ -21,14 +22,15 @@ class ProjectGenerator {
         createPackageStructure(projectPath) // create src directory if not exist
         // addDependencies(dirName, dependencies) // to be implemented
 
-        createBuildFiles(projectPath, packageName)
+        createBuildFiles(projectPath, packageName, projectName)
         createSpringBootApplicationClass(projectPath, projectName, packageName)
         createSpringBootResourceFolder(projectPath)
         createAgent(projectPath, packageName, agentName, steps)
+        FileUtil.copyResourceToDirectory("gradlew", projectPath)
     }
 
     private fun createSpringBootApplicationClass(projectPath: String, mainProjectName: String, packageName: String) {
-        val className = "${mainProjectName.replaceFirstChar { it.titlecase() }}Application"
+        val className = FileUtil.getMainApplicationName(mainProjectName)
 
         val fileContent = """
         package $packageName
@@ -67,8 +69,8 @@ class ProjectGenerator {
         println("Spring Boot resource folder created successfully at $resourceFolderPath")
     }
 
-    private fun createBuildFiles(dirName: String, packageName: String) {
-        GradleBuildWriter().createBuildFiles(dirName, packageName)
+    private fun createBuildFiles(dirName: String, packageName: String, projectName: String) {
+        GradleBuildWriter().createBuildFiles(dirName, packageName, projectName)
     }
 
     private fun createAgent(dirName: String, packageName: String, agentName: String, steps: List<String>) {
