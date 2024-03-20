@@ -1,6 +1,8 @@
 package com.telekom.iaplatformcli.generate
 
+import com.telekom.iaplatformcli.generate.agent.AgentControllerGenerator
 import com.telekom.iaplatformcli.generate.agent.AgentGenerator
+import com.telekom.iaplatformcli.generate.agent.StepGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
@@ -20,13 +22,26 @@ class ProjectGenerator {
         val projectPath = "$dirName/$projectName"
         createDirectory(projectPath)
         createPackageStructure(projectPath) // create src directory if not exist
-        // addDependencies(dirName, dependencies) // to be implemented
 
         createBuildFiles(projectPath, packageName, projectName)
         createSpringBootApplicationClass(projectPath, projectName, packageName)
         createSpringBootResourceFolder(projectPath)
-        createAgent(projectPath, packageName, agentName, steps)
+        createGenerateResponseStep(projectPath, packageName, "GenerateResponse")
+
+        val collectedSteps = mutableListOf("GenerateResponse")
+        collectedSteps.addAll(steps)
+
+        createAgent(projectPath, packageName, agentName, collectedSteps)
+        createAgentRestController(projectPath, packageName, agentName)
         FileUtil.copyResourceToDirectory("gradlew", projectPath)
+    }
+
+    private fun createGenerateResponseStep(projectPath: String, packageName: String, step: String) {
+        StepGenerator(KotlinSourceCode(KotlinLmosImports())).generateStep(projectPath, packageName, step)
+    }
+
+    private fun createAgentRestController(projectPath: String, packageName: String, agentName: String) {
+        AgentControllerGenerator(KotlinSourceCode(KotlinLmosImports())).generateController(projectPath, packageName, agentName)
     }
 
     private fun createSpringBootApplicationClass(projectPath: String, mainProjectName: String, packageName: String) {
@@ -51,8 +66,6 @@ class ProjectGenerator {
         val mainFile = File(filePath)
         mainFile.createNewFile()
         mainFile.writeText(fileContent)
-
-        println("Spring Boot main application class created successfully at $filePath")
     }
 
     private fun createSpringBootResourceFolder(path: String) {
@@ -65,17 +78,15 @@ class ProjectGenerator {
 
         File(resourceFolderPath).mkdirs()
         File("$resourceFolderPath/application.yml").writeText(applicationYmlContent)
-
-        println("Spring Boot resource folder created successfully at $resourceFolderPath")
     }
 
     private fun createBuildFiles(dirName: String, packageName: String, projectName: String) {
         GradleBuildWriter().createBuildFiles(dirName, packageName, projectName)
     }
 
-    private fun createAgent(dirName: String, packageName: String, agentName: String, steps: List<String>) {
+    private fun createAgent(dirName: String, packageName: String, agentName: String, steps: MutableList<String>) {
         // hardcoded instantiation should be changed to injection
-        AgentGenerator(KotlinSourceCode(KotlinLmosImports())).generateAgent(dirName, packageName, agentName, steps)
+        AgentGenerator(KotlinSourceCode(KotlinLmosImports())).generateAgent(dirName, packageName, agentName, steps.toList())
     }
 
     private fun createProjectStructure(projectName: String) {
@@ -95,9 +106,6 @@ class ProjectGenerator {
         val directory = File(directoryPath)
         if (!directory.exists()) {
             directory.mkdirs()
-            println("Directory '$directoryPath' created successfully.")
-        } else {
-            println("Directory '$directoryPath' already exists.")
         }
     }
 }

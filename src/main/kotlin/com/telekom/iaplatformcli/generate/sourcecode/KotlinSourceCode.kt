@@ -11,9 +11,12 @@ class KotlinSourceCode(val lmosImports: LmosImports) : SourceCode {
         val writer = IndentedWriter(agentFile)
         // in case of existing file, clear the file first
         agentFile.writeText("")
-        val packageDeclaration = "package $packageName"
-        val consolidatedImports = StringBuilder()
-        lmosImports.getLmosImports().forEach { import -> consolidatedImports.append("\n$import") }
+        val packageDeclaration = "package $packageName\n"
+        val imports = lmosImports.getLmosImports().toMutableList()
+        imports.add("import $packageName.step.*")
+        imports.add("import $packageName.*\n")
+
+        val consolidatedImports = lmosImports.getAsString(imports)
 
         // consolidate all steps into a string
         val consolidatedSteps = StringBuilder()
@@ -59,9 +62,7 @@ class $agentName (
 }
         """.trimIndent()
         writer.writeLine(packageDeclaration)
-        // import agent constants first
-        writer.writeLine("import $packageName.*")
-        writer.writeLine(consolidatedImports.toString())
+        writer.writeLine(consolidatedImports)
         writer.writeLine(classBodyStart)
         writer.writeLine(consolidatedSteps.toString())
         writer.writeLine(classBodyEnd)
@@ -80,5 +81,119 @@ class $agentName (
             )
         }
         writer.writeLine(consolidatedConstants.toString())
+    }
+
+    override fun createAgentControllerCode(agentName: String, controllerFile: File, packageName: String) {
+        val writer = IndentedWriter(controllerFile)
+
+        controllerFile.writeText("")
+        val packageDeclaration = "package $packageName.controller\n"
+        val consolidatedImports = lmosImports.getAsString(lmosImports.getLmosImportsForController())
+
+        val agentRef = "${agentName.replaceFirstChar { it.lowercase() }}Assistant"
+        val classBody = """
+            @RestController
+            @RequestMapping("/agent")
+            @CrossOrigin(
+                origins = ["*"],
+                allowedHeaders = ["*"],
+                exposedHeaders = ["*"],
+                methods = [RequestMethod.GET, RequestMethod.POST, RequestMethod.OPTIONS]
+            )
+            class ${agentName}Controller (
+                val $agentRef : $agentName
+            ) {
+
+                val log: Logger = org.slf4j.LoggerFactory.getLogger(this.javaClass)
+
+                @PostMapping("/tenants/{tenantId}/conversations/{conversationId}/turns/{turnId}")
+                suspend fun createTurn(
+                    @RequestBody turnMsg: ArrayList<String>,
+                    @PathVariable tenantId: String,
+                    @PathVariable conversationId: String,
+                    @PathVariable turnId: String
+                ): ResponseEntity<out String> {
+
+                    val result = $agentRef.execute(
+                        prepareInput(
+                            turnMsg[0],
+                            conversationId,
+                            turnId,
+                            tenantId
+                        )
+                    )
+                    return ResponseEntity.ok(result.toString())
+                }
+
+                private fun prepareInput(
+                    message: String,
+                    conversationID: String,
+                    turnId: String,
+                    tenantId: String
+                ) = Input(
+                    message,
+                    RequestContext(conversationID, turnId, tenantId, RequestStatus.ONGOING),
+                    mutableMapOf()
+                )
+            }          
+        """.trimIndent()
+        writer.writeLine(packageDeclaration)
+        writer.writeLine(consolidatedImports)
+        writer.writeLine("import $packageName.*\n")
+
+        writer.writeLine(classBody)
+    }
+
+    override fun createResponseStepCode(stepName: String, stepFile: File, packageName: String) {
+        val writer = IndentedWriter(stepFile)
+
+        stepFile.writeText("")
+
+        val packageDeclaration = "package $packageName.step\n"
+        val imports = lmosImports.getAsString(lmosImports.getLmosImportForStep())
+
+        val classBody = """
+            @Component
+            class $stepName(
+                private val languageModelExecutor: LanguageModelExecutor,
+            ) : AbstractStep() {
+
+                private val log = org.slf4j.LoggerFactory.getLogger(javaClass)
+
+                companion object {
+                    private const val CONTEXT_ORIGINAL_QUESTION = "original_question"
+                    private const val CONTEXT_CLEANED_ANSWER = "cleaned_answer"
+                }
+
+                override suspend fun executeInternal(input: Input): Output {
+
+                    val fullConversation = mutableListOf(
+                        UserMessage(input.context<String>(GenerateResponse.CONTEXT_ORIGINAL_QUESTION))
+                    )
+
+                    val response = languageModelExecutor.ask(fullConversation, listOf()).getOrNull()
+
+                    // Process the response
+                    return processModelResponse(response, input)
+                }
+
+                private suspend fun processModelResponse(
+                    response: AssistantMessage?,
+                    input: Input,
+                ): Output {
+                    if (response == null) {
+                        throw StepFailedException("Failed to generate response!")
+                    }
+
+                    input.stepContext[CONTEXT_CLEANED_ANSWER] = input.content
+
+                    return Output(response.content, Status.CONTINUE, input)
+                }
+            }
+        """.trimIndent()
+
+        writer.writeLine(packageDeclaration)
+        writer.writeLine(imports)
+        writer.writeLine(classBody)
     }
 }
