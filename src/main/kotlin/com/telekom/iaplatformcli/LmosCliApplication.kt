@@ -30,9 +30,8 @@ class LmosCliApplication : CommandLineRunner {
     }
 
     override fun run(vararg args: String?) {
-        println("inside the run of command line runner:")
         val validLists = mutableListOf<String>()
-        println("printing args:" + args.forEach { validLists.add(it.orEmpty()) })
+        args.forEach { validLists.add(it.orEmpty()) }
 
         val namedArgs = parseNamedArgumentsWithArray(validLists.toTypedArray())
 
@@ -47,11 +46,6 @@ class LmosCliApplication : CommandLineRunner {
         val projectName = namedArgs["--projectName"].orEmpty()
 
         val steps = namedArgs["--steps"].orEmpty()
-
-        println("Project Name: $projectName")
-        println("Project Directory: $projectDir")
-        println("Package Name: $packageName")
-        println("Agent Name: $agentName")
 
         ProjectGenerator().generateProject(projectName[0], projectDir[0], packageName[0], agentName[0], steps)
         println("Successfully generated project: ${projectName[0]}")

@@ -24,7 +24,6 @@ class AgentGenerator(private val sourceCode: KotlinSourceCode) {
                 return
             }
         } else {
-            println("Source directory absent at: $kotlinSourcePath")
             return
         }
 

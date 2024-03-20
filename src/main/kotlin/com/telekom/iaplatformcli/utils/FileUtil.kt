@@ -20,8 +20,6 @@ class FileUtil {
                 }
             }
             destinationFile.setExecutable(true)
-
-            println("File copied from resources to: ${destinationFile.absolutePath}")
         }
 
         fun getMainApplicationName(mainProjectName: String): String {
