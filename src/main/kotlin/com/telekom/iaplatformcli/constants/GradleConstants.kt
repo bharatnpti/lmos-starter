@@ -4,7 +4,7 @@ class GradleConstants {
 
     companion object {
 
-        //one-llm-kotlin-gradle-plugin version 1.1.999 is custom-made to avoid linting issues
+        // one-llm-kotlin-gradle-plugin version 1.1.999 is custom-made to avoid linting issues
         const val GRADLE_PLUGIN = "plugins {" +
             "id(\"one-llm-kotlin-gradle-plugin\") version \"1.1.999\"" +
             "}"

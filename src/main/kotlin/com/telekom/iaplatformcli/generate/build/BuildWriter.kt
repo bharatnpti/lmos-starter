@@ -15,7 +15,7 @@ class GradleBuildWriter : BuildWriter {
 
     override fun createBuildFiles(projectDir: String, packageName: String, projectName: String): BuildWriter {
         createBuildGradle(projectDir, packageName, projectName)
-        createSettingsGradle(projectDir)
+        createSettingsGradle(projectDir, projectName)
         createGradleProperties(projectDir)
         createGradleWrappers(projectDir)
         println("Successfully generated build files in dir: $projectDir")
@@ -42,12 +42,12 @@ class GradleBuildWriter : BuildWriter {
         gradlePropertiesFile.writeText("one.plugin.service=true") // write oneAI_MAVEN_USER credentials
     }
 
-    private fun createSettingsGradle(projectDir: String) {
+    private fun createSettingsGradle(projectDir: String, projectName: String) {
         val settingsGradleFile = File(projectDir, "settings.gradle.kts")
 
         settingsGradleFile.writeText(
             """
-        rootProject.name = "${projectDir.split("/").last()}"
+        rootProject.name = "$projectName"
         
         ${GradleConstants.SETTINGS_PLUGIN_MANAGEMENT}
             """.trimIndent(),
@@ -67,7 +67,6 @@ class GradleBuildWriter : BuildWriter {
         writer.writeLine(GradleConstants.GRADLE_DEPENDENCIES + "\n}")
 
         writer.writeLine(GradleConstants.GRADLE_COMPATIBILITY)
-        // writer.writeLine(GradleConstants.GRADLE_TASK_KOTLIN)
         writer.writeLine(GradleConstants.GRADLE_TASK_JAR.format(projectName))
     }
 

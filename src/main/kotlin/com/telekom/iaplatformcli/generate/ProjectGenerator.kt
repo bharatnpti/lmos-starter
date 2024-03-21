@@ -14,7 +14,7 @@ class ProjectGenerator {
     fun generateProject(
         projectName: String,
         dirName: String,
-        packageName: String,
+        agentPackageName: String,
         agentName: String,
         steps: List<String>,
     ) {
@@ -23,28 +23,32 @@ class ProjectGenerator {
         createDirectory(projectPath)
         createPackageStructure(projectPath) // create src directory if not exist
 
-        createBuildFiles(projectPath, packageName, projectName)
-        createSpringBootApplicationClass(projectPath, projectName, packageName)
+        // we got agent package, remove the last directory and use the rest as base package
+        val packageParts = agentPackageName.split(".")
+        val basePackage = packageParts.subList(0, packageParts.size - 1).joinToString(separator = ".")
+
+        createBuildFiles(projectPath, basePackage, projectName)
+        createSpringBootApplicationClass(projectPath, basePackage, projectName)
         createSpringBootResourceFolder(projectPath)
-        createGenerateResponseStep(projectPath, packageName, "GenerateResponse")
+        createGenerateResponseStep(projectPath, basePackage, "step", "GenerateResponse")
 
         val collectedSteps = mutableListOf("GenerateResponse")
-        collectedSteps.addAll(steps)
+        // collectedSteps.addAll(steps) // temporarily disabled
 
-        createAgent(projectPath, packageName, agentName, collectedSteps)
-        createAgentRestController(projectPath, packageName, agentName)
+        createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
+        createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
         FileUtil.copyResourceToDirectory("gradlew", projectPath)
     }
 
-    private fun createGenerateResponseStep(projectPath: String, packageName: String, step: String) {
-        StepGenerator(KotlinSourceCode(KotlinLmosImports())).generateStep(projectPath, packageName, step)
+    private fun createGenerateResponseStep(projectPath: String, packageName: String, stepDir: String, stepName: String) {
+        StepGenerator(KotlinSourceCode(KotlinLmosImports())).generateStep(projectPath, packageName, stepDir, stepName)
     }
 
-    private fun createAgentRestController(projectPath: String, packageName: String, agentName: String) {
-        AgentControllerGenerator(KotlinSourceCode(KotlinLmosImports())).generateController(projectPath, packageName, agentName)
+    private fun createAgentRestController(projectPath: String, packageName: String, dirName: String, agentName: String, agentPackage: String) {
+        AgentControllerGenerator(KotlinSourceCode(KotlinLmosImports())).generateController(projectPath, packageName, dirName, agentName, agentPackage)
     }
 
-    private fun createSpringBootApplicationClass(projectPath: String, mainProjectName: String, packageName: String) {
+    private fun createSpringBootApplicationClass(projectPath: String, packageName: String, mainProjectName: String) {
         val className = FileUtil.getMainApplicationName(mainProjectName)
 
         val fileContent = """
@@ -84,9 +88,9 @@ class ProjectGenerator {
         GradleBuildWriter().createBuildFiles(dirName, packageName, projectName)
     }
 
-    private fun createAgent(dirName: String, packageName: String, agentName: String, steps: MutableList<String>) {
+    private fun createAgent(projectPath: String, packageName: String, dirName: String, agentName: String, steps: List<String>) {
         // hardcoded instantiation should be changed to injection
-        AgentGenerator(KotlinSourceCode(KotlinLmosImports())).generateAgent(dirName, packageName, agentName, steps.toList())
+        AgentGenerator(KotlinSourceCode(KotlinLmosImports())).generateAgent(projectPath, packageName, dirName, agentName, steps)
     }
 
     private fun createProjectStructure(projectName: String) {
@@ -95,11 +99,6 @@ class ProjectGenerator {
 
     private fun createPackageStructure(projectName: String) {
         createDirectory("$projectName/src/main/kotlin/")
-    }
-
-    private fun addDependencies(projectName: String, dependencies: List<String>) {
-        // Logic to add dependencies to the project (e.g., update build.gradle.kts file)
-        println("Added dependencies to $projectName: $dependencies")
     }
 
     private fun createDirectory(directoryPath: String) {

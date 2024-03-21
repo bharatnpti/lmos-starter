@@ -4,15 +4,20 @@ import java.io.File
 import java.io.Writer
 
 interface SourceCode {
-    fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>)
+    fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>, customImport: MutableList<String>)
     fun createAgentConstantsCode(packageName: String, agentConstantsFile: File, agentConstantsClass: String)
-    fun createAgentControllerCode(agentName: String, controllerFile: File, packageName: String)
+    fun createAgentControllerCode(
+        agentName: String,
+        controllerFile: File,
+        packageName: String,
+        customImports: MutableList<String>,
+    )
     fun createResponseStepCode(stepName: String, stepFile: File, packageName: String)
 }
 
 class DefaultSourceCode(val indentingWriter: Writer) : SourceCode {
 
-    override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>) {
+    override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>, customImport: MutableList<String>) {
         TODO("Not yet implemented")
     }
 
@@ -20,7 +25,12 @@ class DefaultSourceCode(val indentingWriter: Writer) : SourceCode {
         TODO("Not yet implemented")
     }
 
-    override fun createAgentControllerCode(agentName: String, controllerFile: File, packageName: String) {
+    override fun createAgentControllerCode(
+        agentName: String,
+        controllerFile: File,
+        packageName: String,
+        customImports: MutableList<String>,
+    ) {
         TODO("Not yet implemented")
     }
 

@@ -3,6 +3,8 @@ package com.telekom.iaplatformcli.utils
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.file.Files
+import java.nio.file.Path
 
 class FileUtil {
 
@@ -24,6 +26,21 @@ class FileUtil {
 
         fun getMainApplicationName(mainProjectName: String): String {
             return "${mainProjectName.replaceFirstChar { it.titlecase() }}Application"
+        }
+
+        fun createDirectoryStructure(basePath: Path, dirName: String): String {
+            val newDirectoryPath = basePath.resolve(dirName)
+
+            try {
+                if (!Files.exists(newDirectoryPath)) {
+                    Files.createDirectories(newDirectoryPath)
+                }
+            } catch (e: Exception) {
+                println("Error occurred while creating folder:" + e.message)
+                return basePath.toString()
+            }
+
+            return newDirectoryPath.toString()
         }
     }
 }

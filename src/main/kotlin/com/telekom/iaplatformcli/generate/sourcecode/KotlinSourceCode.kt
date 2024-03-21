@@ -7,15 +7,14 @@ import java.io.File
 @Component
 class KotlinSourceCode(val lmosImports: LmosImports) : SourceCode {
 
-    override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>) {
+    override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>, customImport: MutableList<String>) {
         val writer = IndentedWriter(agentFile)
         // in case of existing file, clear the file first
         agentFile.writeText("")
         val packageDeclaration = "package $packageName\n"
-        val imports = lmosImports.getLmosImports().toMutableList()
-        imports.add("import $packageName.step.*")
-        imports.add("import $packageName.*\n")
 
+        val imports = lmosImports.getLmosImports().toMutableList()
+        imports.addAll(customImport)
         val consolidatedImports = lmosImports.getAsString(imports)
 
         // consolidate all steps into a string
@@ -44,10 +43,10 @@ class $agentName (
     override suspend fun executeInternal(input: Input): Output {
         val user = input.context<UserInformation?>(USER, null)
         val natcoCode = input.context<String>(NATCO_CODE)
-        val tenant = kernelProperties.getTenant(natcoCode) ?: throw UnknownTenantException(natcoCode)
+        val defaultTenant = Tenant("de", "german", languageModel = "gpt-3.5-4k")
 
         return userProvider.setUser(user ?: UserInformation()) {
-            tenantProvider.setTenant(tenant) {
+            tenantProvider.setTenant(defaultTenant) {
                 val result = stepExecutor
                     .seq()
         """.trimIndent()
@@ -71,7 +70,7 @@ class $agentName (
     override fun createAgentConstantsCode(packageName: String, agentConstantsFile: File, agentConstantsClass: String) {
         val writer = IndentedWriter(agentConstantsFile)
 
-        writer.writeLine("package $packageName")
+        writer.writeLine("package $packageName\n")
 
         val agentConstants = this.lmosImports.getAgentConstants()
         val consolidatedConstants = StringBuilder()
@@ -83,12 +82,15 @@ class $agentName (
         writer.writeLine(consolidatedConstants.toString())
     }
 
-    override fun createAgentControllerCode(agentName: String, controllerFile: File, packageName: String) {
+    override fun createAgentControllerCode(agentName: String, controllerFile: File, packageName: String, customImports: MutableList<String>) {
         val writer = IndentedWriter(controllerFile)
 
         controllerFile.writeText("")
-        val packageDeclaration = "package $packageName.controller\n"
-        val consolidatedImports = lmosImports.getAsString(lmosImports.getLmosImportsForController())
+        val packageDeclaration = "package $packageName\n"
+
+        val imports = lmosImports.getLmosImportsForController().toMutableList()
+        imports.addAll(customImports)
+        val consolidatedImports = lmosImports.getAsString(imports)
 
         val agentRef = "${agentName.replaceFirstChar { it.lowercase() }}Assistant"
         val classBody = """
@@ -122,7 +124,7 @@ class $agentName (
                             tenantId
                         )
                     )
-                    return ResponseEntity.ok(result.toString())
+                    return ResponseEntity.ok(result.content)
                 }
 
                 private fun prepareInput(
@@ -133,7 +135,16 @@ class $agentName (
                 ) = Input(
                     message,
                     RequestContext(conversationID, turnId, tenantId, RequestStatus.ONGOING),
-                    mutableMapOf()
+                    mutableMapOf(
+                        NATCO_CODE to "de",
+                        USER to UserInformation(
+                            accessToken = "accessToken",
+                            profileId = "profileId"
+                        ),
+                        "question" to message,
+                        "context" to "user",
+                        "original_question" to message
+                    )
                 )
             }          
         """.trimIndent()
@@ -149,7 +160,7 @@ class $agentName (
 
         stepFile.writeText("")
 
-        val packageDeclaration = "package $packageName.step\n"
+        val packageDeclaration = "package $packageName\n"
         val imports = lmosImports.getAsString(lmosImports.getLmosImportForStep())
 
         val classBody = """

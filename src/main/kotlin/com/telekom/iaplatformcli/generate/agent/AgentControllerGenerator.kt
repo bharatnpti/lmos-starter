@@ -1,30 +1,21 @@
 package com.telekom.iaplatformcli.generate.agent
 
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
+import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.absolute
 
 class AgentControllerGenerator(private val sourceCode: KotlinSourceCode) {
 
-    fun generateController(dirName: String, packageName: String, agentName: String) {
-        val kotlinSourcePath = Path.of(dirName).resolve("src/main/kotlin").absolute()
-        var controllerFolderPath = kotlinSourcePath
-
-        if (Files.exists(controllerFolderPath)) {
-            try {
-                val newPath = Files.createDirectories(kotlinSourcePath.resolve("controller"))
-                controllerFolderPath = controllerFolderPath.resolve(newPath)
-            } catch (e: Exception) {
-                println("Error occurred while creating folder:" + e.message)
-                return
-            }
-        } else {
-            return
-        }
+    fun generateController(projectPath: String, basePackageName: String, classDir: String, agentName: String, agentsPackage: String) {
+        val packageName = basePackageName.plus(".$classDir")
+        val kotlinSourcePath = Path.of(projectPath).resolve("src/main/kotlin").absolute()
+        val controllerFolderPath = FileUtil.createDirectoryStructure(kotlinSourcePath, classDir)
 
         val controllerFile = File("$controllerFolderPath/${agentName.replaceFirstChar { it.titlecase() }}Controller.kt")
-        this.sourceCode.createAgentControllerCode(agentName, controllerFile, packageName)
+
+        val customImports = mutableListOf("import $agentsPackage.*")
+        this.sourceCode.createAgentControllerCode(agentName, controllerFile, packageName, customImports)
     }
 }
