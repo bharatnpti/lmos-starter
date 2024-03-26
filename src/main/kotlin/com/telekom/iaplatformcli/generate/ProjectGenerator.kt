@@ -32,8 +32,8 @@ class ProjectGenerator {
         createSpringBootResourceFolder(projectPath)
         createGenerateResponseStep(projectPath, basePackage, "step", "GenerateResponse")
 
-        val collectedSteps = mutableListOf("GenerateResponse")
-        // collectedSteps.addAll(steps) // temporarily disabled
+        val collectedSteps = mutableListOf<String>()
+        collectedSteps.addAll(steps)
 
         createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
         createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
@@ -78,6 +78,14 @@ class ProjectGenerator {
             kernel:
                 repositories:
                     conversation: memory
+                language-models:
+                    - id: gpt-3.5-4k
+                      provider: azure-openai
+                      url: https://ateam-gpt4.openai.azure.com
+                      api-key: ae132cf4eae14452b5d1a94340284537
+                      model-name: dt-gpt-35-turbo
+                      temperature: 0.0
+                      maxRetries: 3
         """.trimIndent()
 
         File(resourceFolderPath).mkdirs()
