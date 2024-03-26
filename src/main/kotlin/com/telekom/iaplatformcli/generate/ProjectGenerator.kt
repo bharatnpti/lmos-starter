@@ -79,13 +79,13 @@ class ProjectGenerator {
                 repositories:
                     conversation: memory
                 language-models:
-                    - id: gpt-3.5-4k
-                      provider: azure-openai
-                      url: https://ateam-gpt4.openai.azure.com
-                      api-key: ae132cf4eae14452b5d1a94340284537
-                      model-name: dt-gpt-35-turbo
-                      temperature: 0.0
-                      maxRetries: 3
+                    - id: 
+                      provider:
+                      url: 
+                      api-key: 
+                      model-name: 
+                      temperature: 
+                      maxRetries: 
         """.trimIndent()
 
         File(resourceFolderPath).mkdirs()
