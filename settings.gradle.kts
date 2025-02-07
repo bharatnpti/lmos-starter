@@ -10,14 +10,14 @@ pluginManagement {
             val mavenUser = "ONEAI_MAVEN_USER".findProperty()
             val mavenPassword = "ONEAI_MAVEN_TOKEN".findProperty()
 
-            maven {
-                name = "oneai"
-                url = java.net.URI("https://artifactory.devops.telekom.de/artifactory/oneai-maven/")
-                credentials {
-                    username = mavenUser
-                    password = mavenPassword
-                }
-            }
+//            maven {
+//                name = "oneai"
+//                url = java.net.URI("https://artifactory.devops.telekom.de/artifactory/oneai-maven/")
+//                credentials {
+//                    username = mavenUser
+//                    password = mavenPassword
+//                }
+//            }
         }
     }
 }

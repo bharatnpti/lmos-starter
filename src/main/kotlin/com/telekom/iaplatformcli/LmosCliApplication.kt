@@ -7,7 +7,7 @@ import org.springframework.boot.runApplication
 import kotlin.system.exitProcess
 
 @SpringBootApplication
-class LmosCliApplication : CommandLineRunner {
+open class LmosCliApplication : CommandLineRunner {
 
     fun parseNamedArgumentsWithArray(args: Array<String>): Map<String, List<String>> {
         val namedArgs = mutableMapOf<String, MutableList<String>>()
