@@ -37,7 +37,7 @@ if [ -z "$project_dir" ] || [ -z "$package_name" ] || [ -z "$agent_name" ] || [ 
 fi
 
 # Execute jar with parameters
-java -jar ./build/libs/lmos-cli.jar --dirName "$project_dir" --agentName "$agent_name" --packageName "$package_name" --steps "$steps" --projectName "$project_name"
+java -jar ./build/libs/lmos-cli-0.0.1-SNAPSHOT.jar --dirName "$project_dir" --agentName "$agent_name" --packageName "$package_name" --steps "$steps" --projectName "$project_name"
 
 echo -e "\033[1m                    GENERATED NEW PROJECT: $project_name  \033[0m"
 

@@ -1,5 +1,6 @@
 package com.telekom.iaplatformcli.generate
 
+import com.telekom.iaplatformcli.constants.CliConstants
 import com.telekom.iaplatformcli.generate.agent.AgentControllerGenerator
 import com.telekom.iaplatformcli.generate.agent.AgentGenerator
 import com.telekom.iaplatformcli.generate.agent.StepGenerator
@@ -8,6 +9,8 @@ import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.absolute
 
 class ProjectGenerator {
 
@@ -30,14 +33,61 @@ class ProjectGenerator {
         createBuildFiles(projectPath, basePackage, projectName)
         createSpringBootApplicationClass(projectPath, basePackage, projectName)
         createSpringBootResourceFolder(projectPath)
-        createGenerateResponseStep(projectPath, basePackage, "step", "GenerateResponse")
+//        createGenerateResponseStep(projectPath, basePackage, "step", "GenerateResponse")
 
         val collectedSteps = mutableListOf<String>()
         collectedSteps.addAll(steps)
 
-        createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
-        createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
+        val agentsDirectory = "$projectPath/agents"
+        createAgentsFolder(agentsDirectory) // create src directory if not exist
+        createAgentKts(agentsDirectory, agentName, "description", "model", "prompt")
+
+//        createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
+//        createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
         FileUtil.copyResourceToDirectory("gradlew", projectPath)
+    }
+
+    private fun createAgentKts(projectPath: String, agentName: String, description: String, model: String, prompt: String) {
+
+        // and then create the agent file inside it
+        val agentFile = File("$projectPath/${agentName.replaceFirstChar { it.titlecase() }}.agent.kts")
+
+        agentFile.writeText(
+            """
+                // SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
+                //
+                // SPDX-License-Identifier: Apache-2.0
+
+                agent {
+                    name = "assistant-agent"
+                    description = "A helpful assistant that can provide information and answer questions."
+                    model { "GPT-4o" }
+                    tools = AllTools
+                    prompt {
+                        val customerName = userProfile("name", "")
+
+                        ""${'"'}
+                       # Goal 
+                       You are a helpful assistant that can provide information and answer customer questions.
+                       You answer in a helpful and professional manner.  
+                            
+                       ### Instructions 
+                        - Only answer the customer question in a concise and short way.
+                        - Only provide information the user has explicitly asked for.
+                        - Use the "Knowledge" section to answer customers queries.
+                        - If the customer's question is on a topic not described in the "Knowledge" section nor llm functions, reply that you cannot help with that issue.
+                       
+                       ### Knowledge
+                         **Customer would like to know about Arc.**
+                         - Read the content from https://eclipse-lmos.github.io/arc/ and provide the answer.
+                       
+                      ""${'"'}
+                    }
+                }
+            """.trimIndent()
+        )
+        println("Successfully generated code for agent: $agentName")
+
     }
 
     private fun createGenerateResponseStep(projectPath: String, packageName: String, stepDir: String, stepName: String) {
@@ -54,15 +104,18 @@ class ProjectGenerator {
         val fileContent = """
         package $packageName
 
-        import org.springframework.boot.autoconfigure.SpringBootApplication
-        import org.springframework.boot.runApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
-        @SpringBootApplication
-        class $className
+/**
+ * Simple Spring Boot application that demonstrates how to use the Arc Agents.
+ */
+@SpringBootApplication
+class ArcAIApplication
 
-        fun main(args: Array<String>) {
-            runApplication<$className>(*args)
-        }
+fun main(args: Array<String>) {
+    runApplication<ArcAIApplication>(*args)
+}
         """.trimIndent()
 
         val filePath = "$projectPath/src/main/kotlin/$className.kt"
@@ -75,17 +128,62 @@ class ProjectGenerator {
     private fun createSpringBootResourceFolder(path: String) {
         val resourceFolderPath = "$path/src/main/resources"
         val applicationYmlContent = """
-            kernel:
-                repositories:
-                    conversation: memory
-                language-models:
-                    - id: 
-                      provider:
-                      url: 
-                      api-key: 
-                      model-name: 
-                      temperature: 
-                      maxRetries: 
+# SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
+# SPDX-License-Identifier: Apache-2.0
+spring:
+  jackson:
+    default-property-inclusion: NON_NULL
+  main:
+    banner-mode: off
+    web-application-type: reactive
+  reactor:
+    context-propagation: auto
+  graphql:
+    graphiql:
+      enabled: true
+
+server:
+  port: 8080
+
+arc:
+  scripts:
+    enabled: true
+    folder: agents
+    hotReload:
+      enable: true
+      delay: PT1S
+  chat:
+    ui:
+      enabled: true
+  subscriptions:
+    events:
+      enable: true
+
+logging:
+  level:
+    root: WARN
+    org.eclipse.lmos.arc: DEBUG
+    org.eclipse.lmos.arc.app: WARN
+    ArcDSL: DEBUG
+
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: prometheus,metrics,info,health
+  endpoint:
+    metrics:
+      enabled: true
+    health:
+      probes:
+        enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
         """.trimIndent()
 
         File(resourceFolderPath).mkdirs()
@@ -107,6 +205,10 @@ class ProjectGenerator {
 
     private fun createPackageStructure(projectName: String) {
         createDirectory("$projectName/src/main/kotlin/")
+    }
+
+    private fun createAgentsFolder(projectName: String) {
+        createDirectory("$projectName/agents")
     }
 
     private fun createDirectory(directoryPath: String) {

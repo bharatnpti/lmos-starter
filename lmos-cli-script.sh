@@ -61,3 +61,5 @@ echo -e "\033[1m                    STARTING APPLICATION: $project_name \033[0m"
 java -jar "$project_name.jar"
 
 echo "Script execution complete!"
+
+java -jar ./build/libs/lmos-cli-0.0.1-SNAPSHOT.jar --dirName /Users/bharatbhushan/IdeaProjects/Kinetiqx/lmos-cli/NewProject --agentName agent_name --packageName package_name --steps GenerateResponse --projectName project_name

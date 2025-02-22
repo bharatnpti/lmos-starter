@@ -75,17 +75,17 @@ kotlin {
             "        zipStoreBase=GRADLE_USER_HOME\n" +
             "        zipStorePath=wrapper/dists"
 
-        val arcVersionL = "1.0.0-weekly-300125"
+        val arcVersionL = "0.0.1-SNAPSHOT"
 
         val GRADLE_DEPENDENCIES = """
     val arcVersion = "$arcVersionL"
 
-    implementation("ai.ancf.lmos:arc-scripting:${'$'}arcVersion")
-    implementation("ai.ancf.lmos:arc-azure-client:${'$'}arcVersion")
+    implementation("org.eclipse.lmos:arc-scripting:${'$'}arcVersion")
+    implementation("org.eclipse.lmos:arc-azure-client:${'$'}arcVersion")
     implementation("com.azure:azure-identity:1.13.1")
-    implementation("ai.ancf.lmos:arc-spring-boot-starter:${'$'}arcVersion")
-    implementation("ai.ancf.lmos:arc-ollama-client:${'$'}arcVersion")
-    implementation("ai.ancf.lmos:arc-graphql-spring-boot-starter:${'$'}arcVersion")
+    implementation("org.eclipse.lmos:arc-spring-boot-starter:${'$'}arcVersion")
+    implementation("org.eclipse.lmos:arc-ollama-client:${'$'}arcVersion")
+    implementation("org.eclipse.lmos:arc-graphql-spring-boot-starter:${'$'}arcVersion")
     implementation("com.graphql-java:graphql-java:21.5")
 
     // Spring Boot

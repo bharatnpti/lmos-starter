@@ -38,8 +38,8 @@ class GradleBuildWriter : BuildWriter {
     }
 
     private fun createGradleProperties(projectDir: String) {
-        val gradlePropertiesFile = File(projectDir, "gradle.properties")
-        gradlePropertiesFile.writeText("version=0.1.0-SNAPSHOT") // write oneAI_MAVEN_USER credentials
+//        val gradlePropertiesFile = File(projectDir, "gradle.properties")
+//        gradlePropertiesFile.writeText("version=0.1.0-SNAPSHOT") // write oneAI_MAVEN_USER credentials
     }
 
     private fun createSettingsGradle(projectDir: String, projectName: String) {
@@ -60,7 +60,7 @@ class GradleBuildWriter : BuildWriter {
         buildFile.writeText("")
         writer.writeLine(GradleConstants.GRADLE_PLUGIN)
         writer.writeLine("group = \"$packageName\"")
-        writer.writeLine("version = \"0.0.1-SNAPSHOT\"")
+        writer.writeLine("version = \"0.1.0-SNAPSHOT\"")
 
         writer.writeLine("dependencies {\n")
         writer.writeLine(GradleConstants.GRADLE_DEPENDENCIES + "\n}")
