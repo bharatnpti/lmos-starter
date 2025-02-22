@@ -1,8 +1,8 @@
 package com.telekom.iaplatformcli.constants.refactored
   
-import com.github.mustachejava.DefaultMustacheFactory  
-import com.telekom.iaplatformcli.constants.refactored.Versions
-import java.io.InputStreamReader  
+import com.github.mustachejava.DefaultMustacheFactory
+import com.telekom.agents.AgentConfig
+import java.io.InputStreamReader
 import java.io.StringWriter
 
 class BuildScriptGenerator {
@@ -19,7 +19,7 @@ class BuildScriptGenerator {
             "version" to Versions.STARTER_VERSION,
             "javaVersion" to Versions.JAVA_VERSION
         )  
-        return renderTemplate("templates/gradle_plugins.gradle.mustache", context)  
+        return renderTemplate("templates/gradle/plugins.mustache", context)
     }  
   
     fun generateRepositories(): String {
@@ -27,7 +27,7 @@ class BuildScriptGenerator {
             "snapshotRepo" to "https://oss.sonatype.org/content/repositories/snapshots/",
             "weeklyRepo" to "https://oss.sonatype.org/service/local/repositories/orgeclipselmos-1003/content/"
         )
-        return renderTemplate("templates/repositories.gradle.mustache", context)
+        return renderTemplate("templates/gradle/repositories.mustache", context)
     }
   
     fun generateDependencies(): String {  
@@ -38,14 +38,14 @@ class BuildScriptGenerator {
             "testcontainersVersion" to Versions.TESTCONTAINERS_VERSION,  
             "micrometerVersion" to Versions.MICROMETER_VERSION  
         )  
-        return renderTemplate("templates/dependencies.gradle.mustache", context)  
+        return renderTemplate("templates/gradle/dependencies.mustache", context)
     }
 
     fun generateGradleTasks(jarFileName: String): String {
         val context = mapOf(
             "jarFileName" to jarFileName
         )
-        return renderTemplate("templates/gradle_tasks.gradle.mustache", context)
+        return renderTemplate("templates/gradle/tasks.mustache", context)
     }
 
     private fun renderTemplate(templatePath: String, context: Map<String, Any>): String {  
@@ -60,5 +60,41 @@ class BuildScriptGenerator {
         val inputStream = Thread.currentThread().contextClassLoader.getResourceAsStream(resourcePath)  
             ?: throw IllegalArgumentException("Resource $resourcePath not found.")  
         return InputStreamReader(inputStream)  
-    }  
+    }
+
+    fun generateGradleWrapperProperties(): String {
+        val context = mapOf(
+            "distributionBase" to "GRADLE_USER_HOME",
+            "distributionPath" to "wrapper/dists",
+            "distributionUrl" to "https://services.gradle.org/distributions/gradle-8.5-bin.zip",
+            "networkTimeout" to 10000,
+            "validateDistributionUrl" to true,
+            "zipStoreBase" to "GRADLE_USER_HOME",
+            "zipStorePath" to "wrapper/dists"
+        )
+
+        return renderTemplate("templates/gradle/wrapper.mustache", context)
+    }
+
+    fun generateAgent(agentConfig: AgentConfig): CharSequence {
+        val context = mapOf(
+            "agentName" to agentConfig.name,
+            "description" to agentConfig.description,
+            "model" to agentConfig.model,
+            "prompt" to agentConfig.prompt
+        )
+        return renderTemplate("templates/spring/agent.mustache", context)
+    }
+
+    fun generateSpringBootApplication(packageName: String, className: String): CharSequence {
+        val context = mapOf(
+            "packageName" to packageName,
+            "className" to className
+        )
+        return renderTemplate("templates/spring/application_class.mustache", context)
+    }
+
+    fun generateApplicationYaml(): CharSequence {
+        return renderTemplate("templates/spring/yaml.mustache", emptyMap())
+    }
 }  

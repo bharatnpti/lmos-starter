@@ -1,14 +1,15 @@
-package com.telekom.iaplatformcli.generate
+package com.telekom.iaplatformcli.generate.old
 
 import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
 import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
-import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
+import com.telekom.iaplatformcli.generate.agent.AgentControllerGenerator
 import com.telekom.iaplatformcli.generate.agent.AgentGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createDirectories
@@ -31,32 +32,42 @@ class ProjectGenerator {
         createSpringBootResourceFolder(projectDir)
 
         createAgentKts(
-            createAgentsFolder(projectDir), agentConfig
+            createAgentsFolder(projectDir), 
+            agentConfig.name, agentConfig.description, agentConfig.model, agentConfig.prompt
         )
 
         FileUtil.copyResourceToDirectory("gradlew", projectDir.toString())
     }
 
-    private fun createAgentKts(projectPath: Path, agentConfig: AgentConfig) {
-        val agentFile = projectPath.resolve("${agentConfig.name}.agent.kts")
-        val buildScriptGenerator = BuildScriptGenerator()
-
-        agentFile.writeText(buildScriptGenerator.generateAgent(agentConfig))
-            println("Successfully generated code for agent: $agentConfig")
+    private fun createAgentKts(projectPath: Path, agentName: String, description: String, model: String, prompt: String) {
+        val agentFile = projectPath.resolve("$agentName.agent.kts")
+        runCatching {
+            agentFile.writeText(agentTemplate(agentName, description, model, prompt))
+            println("Successfully generated code for agent: $agentName")
+        }.onFailure {
+            println("Error generating agent file: ${it.message}")
+        }
     }
 
-    private fun createSpringBootApplicationClass(projectPath: Path, packageName: String, projectName: String) {
-        val className = FileUtil.getMainApplicationName(projectName)
+    private fun createSpringBootApplicationClass(projectPath: Path, packageName: String, mainProjectName: String) {
+        val className = FileUtil.getMainApplicationName(mainProjectName)
         val mainFilePath = projectPath.resolve("$SRC_MAIN_KOTLIN/$className.kt")
-        val buildScriptGenerator = BuildScriptGenerator()
-        mainFilePath.writeText(buildScriptGenerator.generateSpringBootApplication(packageName, className))
+
+        runCatching {
+            mainFilePath.writeText(springBootApplicationTemplate(packageName, className))
+        }.onFailure {
+            println("Error generating Spring Boot application class: ${it.message}")
+        }
     }
 
     private fun createSpringBootResourceFolder(projectPath: Path) {
         val resourceFolderPath = projectPath.resolve("src/main/resources")
+        runCatching {
             resourceFolderPath.createDirectories()
-        val buildScriptGenerator = BuildScriptGenerator()
-            resourceFolderPath.resolve("application.yml").writeText(buildScriptGenerator.generateApplicationYaml())
+            resourceFolderPath.resolve("application.yml").writeText(applicationYamlTemplate())
+        }.onFailure {
+            println("Error creating resource folder: ${it.message}")
+        }
     }
 
     private fun createBuildFiles(projectPath: Path, packageName: String, projectName: String) {

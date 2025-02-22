@@ -58,7 +58,7 @@ fun main() {
         "--d" to "/Users/bharatbhushan/IdeaProjects/Kinetiqx/starter-temp",
         "--p" to "com.tele",
         "--prj" to "project_nam2",
-        "--an" to "starter_agent",
+        "--an" to "starter_agent2",
         "--am" to "some_model",
         "--ad" to "Agent description here",
         "--ap" to "Agent prompt here"

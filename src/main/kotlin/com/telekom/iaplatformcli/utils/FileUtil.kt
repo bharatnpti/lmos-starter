@@ -1,46 +1,44 @@
 package com.telekom.iaplatformcli.utils
 
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
+import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 
 class FileUtil {
 
     companion object {
         fun copyResourceToDirectory(resourceName: String, projectPath: String) {
             val classLoader = FileUtil::class.java.classLoader
-            val inputStream: InputStream? = classLoader.getResourceAsStream(resourceName)
+            val inputStream = classLoader.getResourceAsStream(resourceName)
+                ?: throw IOException("Resource not found: $resourceName")
 
-            val destinationFile = File(projectPath, File(resourceName).name)
-            val outputStream = FileOutputStream(destinationFile)
+            val destinationPath = Path.of(projectPath, resourceName)
 
             inputStream.use { input ->
-                outputStream.use { output ->
-                    input?.copyTo(output)
+                Files.newOutputStream(destinationPath).use { output ->
+                    input.copyTo(output)
                 }
             }
-            destinationFile.setExecutable(true)
+            destinationPath.toFile().setExecutable(true)
         }
 
         fun getMainApplicationName(mainProjectName: String): String {
-            return "${mainProjectName.replaceFirstChar { it.titlecase() }}Application"
+            return "${mainProjectName.replaceFirstChar { it.uppercaseChar() }}Application"
         }
 
         fun createDirectoryStructure(basePath: Path, dirName: String): String {
             val newDirectoryPath = basePath.resolve(dirName)
 
-            try {
-                if (!Files.exists(newDirectoryPath)) {
+            return try {
+                if (Files.notExists(newDirectoryPath)) {
                     Files.createDirectories(newDirectoryPath)
                 }
-            } catch (e: Exception) {
-                println("Error occurred while creating folder:" + e.message)
-                return basePath.toString()
+                newDirectoryPath.toString()
+            } catch (e: IOException) {
+                println("Error occurred while creating folder: ${e.message}")
+                basePath.toString()
             }
-
-            return newDirectoryPath.toString()
         }
     }
 }
