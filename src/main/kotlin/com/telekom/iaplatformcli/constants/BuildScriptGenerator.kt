@@ -1,19 +1,19 @@
-package com.telekom.iaplatformcli.constants.refactored
+package com.telekom.iaplatformcli.constants
   
 import com.github.mustachejava.DefaultMustacheFactory
 import com.telekom.agents.AgentConfig
 import java.io.InputStreamReader
 import java.io.StringWriter
 
-class BuildScriptGenerator {
+object BuildScriptGenerator {
   
     private val mustacheFactory = DefaultMustacheFactory()
   
     fun generateGradlePlugins(packageName: String): String {
         val context = mapOf(
-            "kotlinVersion" to Versions.KOTLIN_VERSION,  
-            "springBootVersion" to Versions.SPRING_BOOT_VERSION,  
-            "dependencyManagementVersion" to Versions.DEPENDENCY_MANAGEMENT_VERSION,  
+            "kotlinVersion" to Versions.KOTLIN_VERSION,
+            "springBootVersion" to Versions.SPRING_BOOT_VERSION,
+            "dependencyManagementVersion" to Versions.DEPENDENCY_MANAGEMENT_VERSION,
             "graalvmVersion" to Versions.GRAALVM_VERSION,
             "groupId" to packageName,
             "version" to Versions.STARTER_VERSION,
@@ -32,11 +32,11 @@ class BuildScriptGenerator {
   
     fun generateDependencies(): String {  
         val context = mapOf(  
-            "arcVersion" to Versions.ARC_VERSION,  
-            "azureIdentityVersion" to Versions.AZURE_IDENTITY_VERSION,  
-            "graphqlJavaVersion" to Versions.GRAPHQL_JAVA_VERSION,  
-            "testcontainersVersion" to Versions.TESTCONTAINERS_VERSION,  
-            "micrometerVersion" to Versions.MICROMETER_VERSION  
+            "arcVersion" to Versions.ARC_VERSION,
+            "azureIdentityVersion" to Versions.AZURE_IDENTITY_VERSION,
+            "graphqlJavaVersion" to Versions.GRAPHQL_JAVA_VERSION,
+            "testcontainersVersion" to Versions.TESTCONTAINERS_VERSION,
+            "micrometerVersion" to Versions.MICROMETER_VERSION
         )  
         return renderTemplate("templates/gradle/dependencies.mustache", context)
     }
@@ -76,7 +76,7 @@ class BuildScriptGenerator {
         return renderTemplate("templates/gradle/wrapper.mustache", context)
     }
 
-    fun generateAgent(agentConfig: AgentConfig): CharSequence {
+    fun generateAgent(agentConfig: AgentConfig): String {
         val context = mapOf(
             "agentName" to agentConfig.name,
             "description" to agentConfig.description,
@@ -86,7 +86,7 @@ class BuildScriptGenerator {
         return renderTemplate("templates/spring/agent.mustache", context)
     }
 
-    fun generateSpringBootApplication(packageName: String, className: String): CharSequence {
+    fun generateSpringBootApplication(packageName: String, className: String): String {
         val context = mapOf(
             "packageName" to packageName,
             "className" to className
@@ -94,7 +94,7 @@ class BuildScriptGenerator {
         return renderTemplate("templates/spring/application_class.mustache", context)
     }
 
-    fun generateApplicationYaml(): CharSequence {
+    fun generateApplicationYaml(): String {
         return renderTemplate("templates/spring/yaml.mustache", emptyMap())
     }
 }  

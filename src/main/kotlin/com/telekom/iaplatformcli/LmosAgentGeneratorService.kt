@@ -3,15 +3,13 @@ package com.telekom.iaplatformcli
 import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
 import com.telekom.iaplatformcli.generate.ProjectGenerator
-import kotlin.system.exitProcess
 
 
-open class LmosStarter {
+open class LmosAgentGeneratorService {
 
-    fun agentStarter(projectConfig: ProjectConfig, agentConfig: AgentConfig) {
+    fun generateAgentProject(projectConfig: ProjectConfig, agentConfig: AgentConfig) {
         ProjectGenerator().generateProject(projectConfig, agentConfig)
         println("Successfully generated project: ${projectConfig.projectName}")
-        exitProcess(0)
     }
 
 }
@@ -39,6 +37,6 @@ fun main() {
     val projectConfig = ProjectConfig(projectDir, packageName, projectName)
     val agentConfig = AgentConfig(agentName, agentModel, agentDescriptions, agentPrompt)
 
-    LmosStarter().agentStarter(projectConfig, agentConfig)
+    LmosAgentGeneratorService().generateAgentProject(projectConfig, agentConfig)
 }
 

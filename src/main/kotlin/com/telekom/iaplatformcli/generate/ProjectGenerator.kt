@@ -2,8 +2,7 @@ package com.telekom.iaplatformcli.generate
 
 import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
-import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
+import com.telekom.iaplatformcli.constants.BuildScriptGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.nio.file.Path
@@ -17,11 +16,11 @@ class ProjectGenerator {
         projectConfig: ProjectConfig,
         agentConfig: AgentConfig
     ) {
-        val projectDir = Paths.get(projectConfig.projectDir, projectConfig.projectName)
+        val projectDir = Paths.get(projectConfig.projectDir).resolve(projectConfig.projectName)
         val agentPackage = projectConfig.packageName
 
         createDirectories(projectDir)
-        createDirectories(projectDir.resolve(SRC_MAIN_KOTLIN))
+        createDirectories(resolveKotlinSrcPath(projectDir))
 
         createBuildFiles(projectDir, agentPackage, projectConfig.projectName)
         createSpringBootApplicationClass(projectDir, agentPackage, projectConfig.projectName)
@@ -31,40 +30,34 @@ class ProjectGenerator {
             createAgentsFolder(projectDir), agentConfig
         )
 
-        FileUtil.copyResourceToDirectory("gradlew", projectDir.toString())
+        FileUtil.copyResourceToDirectory("gradlew", projectDir.toString(), true)
     }
 
-    private fun createAgentKts(projectPath: Path, agentConfig: AgentConfig) {
-        val agentFile = projectPath.resolve("${agentConfig.name}.agent.kts")
-        val buildScriptGenerator = BuildScriptGenerator()
-
-        agentFile.writeText(buildScriptGenerator.generateAgent(agentConfig))
+    private fun createAgentKts(projectDir: Path, agentConfig: AgentConfig) {
+        val agentFile = projectDir.resolve("${agentConfig.name}.agent.kts")
+        agentFile.writeText(BuildScriptGenerator.generateAgent(agentConfig))
             println("Successfully generated code for agent: $agentConfig")
     }
 
-    private fun createSpringBootApplicationClass(projectPath: Path, packageName: String, projectName: String) {
+    private fun createSpringBootApplicationClass(projectDir: Path, packageName: String, projectName: String) {
         val className = FileUtil.getMainApplicationName(projectName)
-        val mainFilePath = projectPath.resolve("$SRC_MAIN_KOTLIN/$className.kt")
-        val buildScriptGenerator = BuildScriptGenerator()
-        mainFilePath.writeText(buildScriptGenerator.generateSpringBootApplication(packageName, className))
+        val mainFilePath = resolveKotlinSrcPath(projectDir).resolve("$className.kt")
+        mainFilePath.writeText(BuildScriptGenerator.generateSpringBootApplication(packageName, className))
     }
 
-    private fun createSpringBootResourceFolder(projectPath: Path) {
-        val resourceFolderPath = projectPath.resolve("src/main/resources")
-            resourceFolderPath.createDirectories()
-        val buildScriptGenerator = BuildScriptGenerator()
-            resourceFolderPath.resolve("application.yml").writeText(buildScriptGenerator.generateApplicationYaml())
+    private fun resolveKotlinSrcPath(projectDir: Path) = projectDir.resolve("src").resolve("main").resolve("kotlin")
+
+    private fun createSpringBootResourceFolder(projectDir: Path) {
+        val resourceFolderPath = projectDir.resolve("src").resolve("main").resolve("resources")
+        resourceFolderPath.createDirectories()
+            resourceFolderPath.resolve("application.yml").writeText(BuildScriptGenerator.generateApplicationYaml())
     }
 
-    private fun createBuildFiles(projectPath: Path, packageName: String, projectName: String) {
-        GradleBuildWriter().createBuildFiles(projectPath.toString(), packageName, projectName)
+    private fun createBuildFiles(projectDir: Path, packageName: String, projectName: String) {
+        GradleBuildWriter().createBuildFiles(projectDir, packageName, projectName)
     }
 
-    private fun createAgentsFolder(projectPath: Path): Path {
-        val agentDirectory = projectPath.resolve("agents")
-        agentDirectory.createDirectories()
-        return agentDirectory
-    }
+    private fun createAgentsFolder(projectDir: Path) = projectDir.resolve("agents").apply { createDirectories() }
 
     private fun createDirectories(path: Path) {
         runCatching {
@@ -73,5 +66,4 @@ class ProjectGenerator {
             println("Error creating directory: ${path.toAbsolutePath()}, ${it.message}")
         }
     }
-
 }

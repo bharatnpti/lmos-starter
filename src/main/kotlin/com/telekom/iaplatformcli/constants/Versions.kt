@@ -1,4 +1,4 @@
-package com.telekom.iaplatformcli.constants.refactored
+package com.telekom.iaplatformcli.constants
 
 object Versions {
     const val KOTLIN_VERSION = "2.0.20"

@@ -1,4 +1,4 @@
-import com.telekom.iaplatformcli.LmosStarter
+import com.telekom.iaplatformcli.LmosAgentGeneratorService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -12,7 +12,7 @@ class ArgumentParserTest {
     }
 
     private fun parseNamedArgumentsWithArray(args: Array<String>): Any? {
-        val parseNamedArgumentsWithArray2 = LmosStarter().parseNamedArguments(args)
+        val parseNamedArgumentsWithArray2 = LmosAgentGeneratorService().parseNamedArguments(args)
         return parseNamedArgumentsWithArray2
     }
 

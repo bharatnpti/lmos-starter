@@ -1,5 +1,4 @@
-import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
-import com.telekom.iaplatformcli.constants.refactored.GradleConstants
+import com.telekom.iaplatformcli.constants.BuildScriptGenerator
 
 fun main() {  
     val generator = BuildScriptGenerator()

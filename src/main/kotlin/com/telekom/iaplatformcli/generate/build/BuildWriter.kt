@@ -1,19 +1,27 @@
 package com.telekom.iaplatformcli.generate.build
 
-import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
-import com.telekom.iaplatformcli.service.writer.IndentedWriter
+import com.telekom.iaplatformcli.constants.BuildScriptGenerator
 import com.telekom.iaplatformcli.utils.FileUtil
-import java.io.File
+import java.nio.file.*
 
 interface BuildWriter {
-    fun createBuildFiles(projectDir: String, packageName: String, projectName: String): BuildWriter
+    fun createBuildFiles(projectDir: Path, packageName: String, projectName: String): BuildWriter
     fun getProjectType(): String
 }
 
-class GradleBuildWriter : BuildWriter {
-    private val buildType = "GRADLE"
+abstract class AbstractBuildWriter(private val buildType: String) : BuildWriter {
+    override fun getProjectType(): String = buildType
 
-    override fun createBuildFiles(projectDir: String, packageName: String, projectName: String): BuildWriter {
+    protected fun writeToFile(filePath: Path, content: String) {
+        Files.newBufferedWriter(filePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
+            writer.write(content)
+        }
+    }
+}
+
+class GradleBuildWriter : AbstractBuildWriter("GRADLE") {
+
+    override fun createBuildFiles(projectDir: Path, packageName: String, projectName: String): BuildWriter {
         createBuildGradle(projectDir, packageName, projectName)
         createSettingsGradle(projectDir, projectName)
         createGradleWrappers(projectDir)
@@ -21,38 +29,57 @@ class GradleBuildWriter : BuildWriter {
         return this
     }
 
-    private fun createGradleWrappers(projectDir: String) {
-        val gradleWrapperDir = File(projectDir, "gradle/wrapper")
-        gradleWrapperDir.mkdirs()
-        val gradleWrapperPropertiesFile = File(gradleWrapperDir, "gradle-wrapper.properties")
-        val buildScriptGenerator = BuildScriptGenerator()
-        gradleWrapperPropertiesFile.writeText(buildScriptGenerator.generateGradleWrapperProperties())
-        FileUtil.copyResourceToDirectory("gradle-wrapper.jar", gradleWrapperDir.absolutePath)
+    private fun createGradleWrappers(projectDir: Path) {
+        val gradleWrapperDir = projectDir.resolve("gradle/wrapper")
+        Files.createDirectories(gradleWrapperDir)
+
+        val gradleWrapperPropertiesFile = gradleWrapperDir.resolve("gradle-wrapper.properties")
+//        Files.newBufferedWriter(gradleWrapperPropertiesFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
+//            writer.write(BuildScriptGenerator.generateGradleWrapperProperties())
+//        }
+        writeToFile(gradleWrapperPropertiesFile, BuildScriptGenerator.generateGradleWrapperProperties())
+
+        FileUtil.copyResourceToDirectory("gradle-wrapper.jar", gradleWrapperDir.toString(), true)
     }
 
-    private fun createSettingsGradle(projectDir: String, projectName: String) {
-        val settingsGradleFile = File(projectDir, "settings.gradle.kts")
+    private fun createSettingsGradle(projectDir: Path, projectName: String) {
+        val settingsGradleFile = projectDir.resolve("settings.gradle.kts")
 
-        settingsGradleFile.writeText(
-            """
-        rootProject.name = "$projectName"
+        val settingsGradle = """
+                rootProject.name = "$projectName"
+                """.trimIndent()
+//        Files.newBufferedWriter(settingsGradleFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
+//            writer.write(
+//                settingsGradle
+//            )
+//        }
 
-            """.trimIndent(),
-        )
+        writeToFile(settingsGradleFile, settingsGradle)
     }
 
-    private fun createBuildGradle(projectDir: String, packageName: String, projectName: String) {
-        val buildFile = File("$projectDir/build.gradle.kts")
-        val writer = IndentedWriter(buildFile)
-        buildFile.writeText("")
-        val buildScriptGenerator = BuildScriptGenerator()
-        writer.writeLine(buildScriptGenerator.generateGradlePlugins(packageName))
-        writer.writeLine(buildScriptGenerator.generateRepositories())
-        writer.writeLine(buildScriptGenerator.generateDependencies())
-        writer.writeLine(buildScriptGenerator.generateGradleTasks(projectName))
+    private fun createBuildGradle(projectDir: Path, packageName: String, projectName: String) {
+        val buildFile = projectDir.resolve("build.gradle.kts")
+//        Files.newBufferedWriter(buildFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
+//            writer.write(BuildScriptGenerator.generateGradlePlugins(packageName))
+//            writer.write(BuildScriptGenerator.generateRepositories())
+//            writer.write(BuildScriptGenerator.generateDependencies())
+//            writer.write(BuildScriptGenerator.generateGradleTasks(projectName))
+//        }
+
+        writeToFile(buildFile, buildScriptContent(packageName, projectName))
+
     }
 
-    override fun getProjectType(): String {
-        return this.buildType
+    private fun buildScriptContent(packageName: String, projectName: String): String {
+        return buildString {
+            append(BuildScriptGenerator.generateGradlePlugins(packageName))
+            append(System.lineSeparator())
+            append(BuildScriptGenerator.generateRepositories())
+            append(System.lineSeparator())
+            append(BuildScriptGenerator.generateDependencies())
+            append(System.lineSeparator())
+            append(BuildScriptGenerator.generateGradleTasks(projectName))
+        }
     }
+
 }
