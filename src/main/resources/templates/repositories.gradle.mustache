@@ -1,0 +1,10 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = uri("{{snapshotRepo}}")
+    }
+    maven {
+        url = uri("{{weeklyRepo}}")
+    }
+}

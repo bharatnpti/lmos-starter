@@ -2,7 +2,7 @@ package com.telekom.iaplatformcli.generate
 
 import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
+import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.agent.AgentControllerGenerator
 import com.telekom.iaplatformcli.generate.agent.AgentGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter

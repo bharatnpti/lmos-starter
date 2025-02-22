@@ -1,6 +1,6 @@
 package com.telekom.iaplatformcli.constants
 
-class CliConstants {
+class LmosStarterConstants {
 
     companion object {
         const val AGENT_CONSTANTS_CLASS_NAME = "AgentConstants"

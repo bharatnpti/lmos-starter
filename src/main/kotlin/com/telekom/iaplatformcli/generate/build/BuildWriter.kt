@@ -1,6 +1,7 @@
 package com.telekom.iaplatformcli.generate.build
 
 import com.telekom.iaplatformcli.constants.GradleConstants
+import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
 import com.telekom.iaplatformcli.service.writer.IndentedWriter
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
@@ -58,17 +59,20 @@ class GradleBuildWriter : BuildWriter {
         val writer = IndentedWriter(buildFile)
         // remove any existing content from file
         buildFile.writeText("")
-        writer.writeLine(GradleConstants.GRADLE_PLUGIN)
-        writer.writeLine("group = \"$packageName\"")
-        writer.writeLine("version = \"0.1.0-SNAPSHOT\"")
+        val buildScriptGenerator = BuildScriptGenerator()
+        writer.writeLine(buildScriptGenerator.generateGradlePlugins())
+//        writer.writeLine("group = \"$packageName\"")
+//        writer.writeLine("version = \"0.1.0-SNAPSHOT\"")
 
-        writer.writeLine("dependencies {\n")
-        writer.writeLine(GradleConstants.GRADLE_DEPENDENCIES + "\n}")
+//        writer.writeLine("dependencies {\n")
+        writer.writeLine(buildScriptGenerator.generateRepositories())
 
-        writer.writeLine(GradleConstants.REPOSITORIES)
+        writer.writeLine(buildScriptGenerator.generateDependencies())
 
-        writer.writeLine(GradleConstants.GRADLE_COMPATIBILITY)
-        writer.writeLine(GradleConstants.GRADLE_TASK_JAR.format(projectName))
+        writer.writeLine(buildScriptGenerator.generateGradleTasks(projectName))
+
+//        writer.writeLine(GradleConstants.GRADLE_COMPATIBILITY)
+//        writer.writeLine(GradleConstants.GRADLE_TASK_JAR.format(projectName))
     }
 
     override fun getProjectType(): String {

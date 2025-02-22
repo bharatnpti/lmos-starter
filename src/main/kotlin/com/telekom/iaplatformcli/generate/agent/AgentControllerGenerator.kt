@@ -1,6 +1,6 @@
 package com.telekom.iaplatformcli.generate.agent
 
-import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
+import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File

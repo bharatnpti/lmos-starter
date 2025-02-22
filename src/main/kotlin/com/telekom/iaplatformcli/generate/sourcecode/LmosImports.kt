@@ -1,7 +1,5 @@
 package com.telekom.iaplatformcli.generate.sourcecode
 
-import org.springframework.stereotype.Component
-
 interface LmosImports {
     fun getLmosImports(): List<String>
     fun getAgentConstants(): List<String>
@@ -13,7 +11,6 @@ interface LmosImports {
     }
 }
 
-@Component
 class KotlinLmosImports : LmosImports {
 
     companion object {

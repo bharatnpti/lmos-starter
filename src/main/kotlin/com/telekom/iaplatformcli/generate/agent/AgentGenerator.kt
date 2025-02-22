@@ -1,7 +1,7 @@
 package com.telekom.iaplatformcli.generate.agent
 
-import com.telekom.iaplatformcli.constants.CliConstants
-import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
+import com.telekom.iaplatformcli.constants.LmosStarterConstants
+import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
@@ -17,7 +17,7 @@ class AgentGenerator(private val sourceCode: KotlinSourceCode) {
 
         val agentConstantsFile = File("$agentFolderPath/AgentConstants.kt")
         if (!agentConstantsFile.exists()) {
-            this.sourceCode.createAgentConstantsCode(packageName, agentConstantsFile, CliConstants.AGENT_CONSTANTS_CLASS_NAME)
+            this.sourceCode.createAgentConstantsCode(packageName, agentConstantsFile, LmosStarterConstants.AGENT_CONSTANTS_CLASS_NAME)
         }
 
         // and then create the agent file inside it

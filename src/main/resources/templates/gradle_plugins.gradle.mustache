@@ -1,0 +1,26 @@
+// SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
+//
+// SPDX-License-Identifier: Apache-2.0
+
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+import java.lang.System.getenv
+import java.net.URI
+
+plugins {
+    kotlin("jvm") version "{{kotlinVersion}}"
+    kotlin("plugin.serialization") version "{{kotlinVersion}}"
+    kotlin("plugin.spring") version "{{kotlinVersion}}"
+    id("org.springframework.boot") version "{{springBootVersion}}"
+    id("io.spring.dependency-management") version "{{dependencyManagementVersion}}"
+    id("org.graalvm.buildtools.native") version "{{graalvmVersion}}"
+}
+
+kotlin {
+    jvmToolchain({{javaVersion}})
+    compilerOptions {
+        freeCompilerArgs.addAll("-Xjsr305=strict", "-Xcontext-receivers")
+    }
+}
+
+group = "{{groupId}}"
+version = "{{version}}"

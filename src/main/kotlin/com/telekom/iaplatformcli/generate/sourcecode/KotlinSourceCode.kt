@@ -1,10 +1,8 @@
 package com.telekom.iaplatformcli.generate.sourcecode
 
 import com.telekom.iaplatformcli.service.writer.IndentedWriter
-import org.springframework.stereotype.Component
 import java.io.File
 
-@Component
 class KotlinSourceCode(val lmosImports: LmosImports) : SourceCode {
 
     override fun createAgentCode(packageName: String, agentFile: File, agentName: String, steps: List<String>, customImport: MutableList<String>) {
