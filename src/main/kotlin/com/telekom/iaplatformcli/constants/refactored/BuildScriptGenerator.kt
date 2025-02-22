@@ -9,13 +9,13 @@ class BuildScriptGenerator {
   
     private val mustacheFactory = DefaultMustacheFactory()
   
-    fun generateGradlePlugins(): String {
+    fun generateGradlePlugins(packageName: String): String {
         val context = mapOf(
             "kotlinVersion" to Versions.KOTLIN_VERSION,  
             "springBootVersion" to Versions.SPRING_BOOT_VERSION,  
             "dependencyManagementVersion" to Versions.DEPENDENCY_MANAGEMENT_VERSION,  
             "graalvmVersion" to Versions.GRAALVM_VERSION,
-            "groupId" to Versions.STARTER_GROUP_ID,
+            "groupId" to packageName,
             "version" to Versions.STARTER_VERSION,
             "javaVersion" to Versions.JAVA_VERSION
         )  

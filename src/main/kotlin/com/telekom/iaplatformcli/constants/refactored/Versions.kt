@@ -10,7 +10,6 @@ object Versions {
     const val GRAPHQL_JAVA_VERSION = "21.5"  
     const val TESTCONTAINERS_VERSION = "1.19.7"  
     const val MICROMETER_VERSION = "1.10.6"
-    const val STARTER_GROUP_ID = "org.eclipse.lmos.starter.arc"
     const val STARTER_VERSION = "0.0.1-SNAPSHOT"
     const val JAVA_VERSION = "21"
 }  

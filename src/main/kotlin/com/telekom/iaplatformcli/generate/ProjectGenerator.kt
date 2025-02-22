@@ -4,10 +4,7 @@ import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
 import com.telekom.iaplatformcli.constants.LmosStarterConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.constants.refactored.BuildScriptGenerator
-import com.telekom.iaplatformcli.generate.agent.AgentGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
-import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
-import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -63,11 +60,6 @@ class ProjectGenerator {
         GradleBuildWriter().createBuildFiles(projectPath.toString(), packageName, projectName)
     }
 
-    private fun createAgent(projectPath: Path, packageName: String, dirName: String, agentName: String, steps: List<String>) {
-        AgentGenerator(KotlinSourceCode(KotlinLmosImports()))
-            .generateAgent(projectPath.toString(), packageName, dirName, agentName, steps)
-    }
-
     private fun createAgentsFolder(projectPath: Path): Path {
         val agentDirectory = projectPath.resolve("agents")
         agentDirectory.createDirectories()
@@ -82,93 +74,4 @@ class ProjectGenerator {
         }
     }
 
-    // Templates for content generation
-    private fun agentTemplate(agentName: String, description: String, model: String, prompt: String) = """
-        // SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
-        //
-        // SPDX-License-Identifier: Apache-2.0
-
-        agent {
-            name = "$agentName"
-            description = "$description"
-            model { "$model" }
-            tools = AllTools
-            prompt {
-            ${"\"\"\""}$prompt${"\"\"\""}
-            }
-        }
-    """.trimIndent()
-
-    private fun springBootApplicationTemplate(packageName: String, className: String) = """
-        package $packageName
-
-        import org.springframework.boot.autoconfigure.SpringBootApplication
-        import org.springframework.boot.runApplication
-
-        @SpringBootApplication
-        class $className
-
-        fun main(args: Array<String>) {
-            runApplication<$className>(*args)
-        }
-    """.trimIndent()
-
-    private fun applicationYamlTemplate() = """
-        # SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
-        # SPDX-License-Identifier: Apache-2.0
-        spring:
-          jackson:
-            default-property-inclusion: NON_NULL
-          main:
-            banner-mode: off
-            web-application-type: reactive
-          reactor:
-            context-propagation: auto
-          graphql:
-            graphiql:
-              enabled: true
-
-        server:
-          port: 8080
-
-        arc:
-          scripts:
-            enabled: true
-            folder: agents
-            hotReload:
-              enable: true
-              delay: PT1S
-          chat:
-            ui:
-              enabled: true
-          subscriptions:
-            events:
-              enable: true
-
-        logging:
-          level:
-            root: WARN
-            org.eclipse.lmos.arc: DEBUG
-            org.eclipse.lmos.arc.app: WARN
-            ArcDSL: DEBUG
-
-        management:
-          server:
-            port: 9090
-          endpoints:
-            web:
-              base-path: /
-              exposure:
-                include: prometheus,metrics,info,health
-          endpoint:
-            metrics:
-              enabled: true
-            health:
-              probes:
-                enabled: true
-          prometheus:
-            metrics:
-              export:
-                enabled: true
-    """.trimIndent()
 }

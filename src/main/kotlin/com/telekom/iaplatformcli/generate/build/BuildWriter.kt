@@ -46,7 +46,7 @@ class GradleBuildWriter : BuildWriter {
         val writer = IndentedWriter(buildFile)
         buildFile.writeText("")
         val buildScriptGenerator = BuildScriptGenerator()
-        writer.writeLine(buildScriptGenerator.generateGradlePlugins())
+        writer.writeLine(buildScriptGenerator.generateGradlePlugins(packageName))
         writer.writeLine(buildScriptGenerator.generateRepositories())
         writer.writeLine(buildScriptGenerator.generateDependencies())
         writer.writeLine(buildScriptGenerator.generateGradleTasks(projectName))
