@@ -4,6 +4,7 @@ import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
 import com.telekom.iaplatformcli.constants.BuildScriptGenerator
 import com.telekom.iaplatformcli.utils.FileUtil
+import com.telekom.iaplatformcli.utils.FileUtil.resolveSrcPath
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createDirectories

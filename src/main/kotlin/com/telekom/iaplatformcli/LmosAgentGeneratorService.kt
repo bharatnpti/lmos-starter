@@ -8,13 +8,11 @@ import com.telekom.iaplatformcli.generate.ne.ProjectFactory
 
 open class LmosAgentGeneratorService {
 
-    fun generateAgentProject(projectConfig: ProjectConfig, agentConfig: AgentConfig) {
-
-        val factory: ProjectFactory = GradleSpringProjectFactory()
+    fun generateAgentProject(projectFactory: ProjectFactory, projectConfig: ProjectConfig, agentConfig: AgentConfig) {
 
         // Use the factory to create build tool and framework objects
-        val buildTool = factory.createBuildTool()
-        val framework = factory.createFramework()
+        val buildTool = projectFactory.createBuildTool()
+        val framework = projectFactory.createFramework()
 
         // Setup the build tool and framework
         buildTool.setupBuildTool(projectConfig, agentConfig)
@@ -30,7 +28,7 @@ fun main() {
         "--d" to "/Users/bharatbhushan/IdeaProjects/Kinetiqx/starter-temp",
         "--p" to "com.tele",
         "--prj" to "project_nam2",
-        "--an" to "starter_agent",
+        "--an" to "starter_agent2",
         "--am" to "some_model2",
         "--ad" to "Agent description here2",
         "--ap" to "Agent prompt here2"
@@ -48,6 +46,6 @@ fun main() {
     val projectConfig = ProjectConfig(projectDir, packageName, projectName)
     val agentConfig = AgentConfig(agentName, agentModel, agentDescriptions, agentPrompt)
 
-    LmosAgentGeneratorService().generateAgentProject(projectConfig, agentConfig)
+    LmosAgentGeneratorService().generateAgentProject(GradleSpringProjectFactory(), projectConfig, agentConfig)
 }
 

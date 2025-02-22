@@ -2,7 +2,7 @@ package com.telekom.iaplatformcli.constants
   
 import com.github.mustachejava.DefaultMustacheFactory
 import com.telekom.agents.AgentConfig
-import java.io.InputStreamReader
+import java.io.Reader
 import java.io.StringWriter
 
 object BuildScriptGenerator {
@@ -48,19 +48,21 @@ object BuildScriptGenerator {
         return renderTemplate("templates/gradle/tasks.mustache", context)
     }
 
-    private fun renderTemplate(templatePath: String, context: Map<String, Any>): String {  
-        val templateReader = getResourceReader(templatePath)  
-        val mustache = mustacheFactory.compile(templateReader, templatePath)  
-        val writer = StringWriter()  
-        mustache.execute(writer, context).flush()  
-        return writer.toString().trimIndent()  
-    }  
-  
-    private fun getResourceReader(resourcePath: String): InputStreamReader {
-        val inputStream = Thread.currentThread().contextClassLoader.getResourceAsStream(resourcePath)  
-            ?: throw IllegalArgumentException("Resource $resourcePath not found.")  
-        return InputStreamReader(inputStream)  
+    private fun renderTemplate(templatePath: String, context: Map<String, Any>): String {
+        getResourceReader(templatePath).use { reader ->
+            val mustache = mustacheFactory.compile(reader, templatePath)
+            return StringWriter().use { writer ->
+                mustache.execute(writer, context).flush()
+                writer.toString().trimIndent()
+            }
+        }
     }
+
+    private fun getResourceReader(resourcePath: String): Reader {
+        return Thread.currentThread().contextClassLoader.getResourceAsStream(resourcePath)?.reader()
+            ?: throw IllegalArgumentException("Resource $resourcePath not found.")
+    }
+
 
     fun generateGradleWrapperProperties(): String {
         val context = mapOf(

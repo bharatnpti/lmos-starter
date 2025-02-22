@@ -32,4 +32,6 @@ object FileUtil {
     fun createDirectories(path: Path) {
         path.createDirectories()
     }
+
+    fun resolveSrcPath(projectDir: Path): Path = projectDir.resolve("src").resolve("main").resolve("kotlin")
 }
