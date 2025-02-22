@@ -7,12 +7,12 @@ import kotlin.io.path.createDirectories
 
 object FileUtil {
 
-        fun copyResourceToDirectory(resourceName: String, projectPath: String, isExecutable: Boolean) {
+        fun copyResourceToDirectory(resourceName: String, projectPath: Path, isExecutable: Boolean) {
             val classLoader = FileUtil::class.java.classLoader
             val inputStream = classLoader.getResourceAsStream(resourceName)
                 ?: throw IOException("Resource not found: $resourceName")
 
-            val destinationPath = Path.of(projectPath, resourceName)
+            val destinationPath = projectPath.resolve(resourceName)
 
             inputStream.use { input ->
                 Files.newOutputStream(destinationPath).use { output ->

@@ -1,11 +1,14 @@
 package com.telekom.iaplatformcli.generate.build
 
-import com.telekom.iaplatformcli.constants.BuildScriptGenerator
+import com.telekom.iaplatformcli.constants.GradleScriptGenerator
+import com.telekom.iaplatformcli.constants.TemplateEngine
 import com.telekom.iaplatformcli.utils.FileUtil
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 
 interface BuildWriter {
-    fun createBuildFiles(projectDir: Path, packageName: String, projectName: String): BuildWriter
+    fun createBuildFiles(projectDir: Path, packageName: String, projectName: String)
     fun getProjectType(): String
 }
 
@@ -19,14 +22,15 @@ abstract class AbstractBuildWriter(private val buildType: String) : BuildWriter 
     }
 }
 
-class GradleBuildWriter : AbstractBuildWriter("GRADLE") {
+class GradleBuildWriter(templateEngine: TemplateEngine) : AbstractBuildWriter("GRADLE") {
 
-    override fun createBuildFiles(projectDir: Path, packageName: String, projectName: String): BuildWriter {
+    private val gradleScriptGenerator = GradleScriptGenerator(templateEngine)
+
+    override fun createBuildFiles(projectDir: Path, packageName: String, projectName: String) {
         createBuildGradle(projectDir, packageName, projectName)
         createSettingsGradle(projectDir, projectName)
         createGradleWrappers(projectDir)
         println("Successfully generated build files in dir: $projectDir")
-        return this
     }
 
     private fun createGradleWrappers(projectDir: Path) {
@@ -34,12 +38,9 @@ class GradleBuildWriter : AbstractBuildWriter("GRADLE") {
         Files.createDirectories(gradleWrapperDir)
 
         val gradleWrapperPropertiesFile = gradleWrapperDir.resolve("gradle-wrapper.properties")
-//        Files.newBufferedWriter(gradleWrapperPropertiesFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
-//            writer.write(BuildScriptGenerator.generateGradleWrapperProperties())
-//        }
-        writeToFile(gradleWrapperPropertiesFile, BuildScriptGenerator.generateGradleWrapperProperties())
+        writeToFile(gradleWrapperPropertiesFile, gradleScriptGenerator.generateGradleWrapperProperties())
 
-        FileUtil.copyResourceToDirectory("gradle-wrapper.jar", gradleWrapperDir.toString(), true)
+        FileUtil.copyResourceToDirectory("gradle-wrapper.jar", gradleWrapperDir, true)
     }
 
     private fun createSettingsGradle(projectDir: Path, projectName: String) {
@@ -48,31 +49,24 @@ class GradleBuildWriter : AbstractBuildWriter("GRADLE") {
         val settingsGradle = """
                 rootProject.name = "$projectName"
                 """.trimIndent()
-//        Files.newBufferedWriter(settingsGradleFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
-//            writer.write(
-//                settingsGradle
-//            )
-//        }
-
         writeToFile(settingsGradleFile, settingsGradle)
     }
 
     private fun createBuildGradle(projectDir: Path, packageName: String, projectName: String) {
         val buildFile = projectDir.resolve("build.gradle.kts")
-
         writeToFile(buildFile, buildScriptContent(packageName, projectName))
 
     }
 
     private fun buildScriptContent(packageName: String, projectName: String): String {
         return buildString {
-            append(BuildScriptGenerator.generateGradlePlugins(packageName))
+            append(gradleScriptGenerator.generateGradlePlugins(packageName))
             append(System.lineSeparator())
-            append(BuildScriptGenerator.generateRepositories())
+            append(gradleScriptGenerator.generateRepositories())
             append(System.lineSeparator())
-            append(BuildScriptGenerator.generateDependencies())
+            append(gradleScriptGenerator.generateDependencies())
             append(System.lineSeparator())
-            append(BuildScriptGenerator.generateGradleTasks(projectName))
+            append(gradleScriptGenerator.generateGradleTasks(projectName))
         }
     }
 
