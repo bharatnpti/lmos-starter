@@ -4,7 +4,6 @@ class GradleConstants {
 
     companion object {
 
-        // one-llm-kotlin-gradle-plugin version 1.1.999 is custom-made to avoid linting issues
         const val GRADLE_PLUGIN = """
             // SPDX-FileCopyrightText: 2024 Deutsche Telekom AG
 //
@@ -44,28 +43,6 @@ kotlin {
 }
         """
 
-//        const val SETTINGS_PLUGIN_MANAGEMENT = "pluginManagement {\n" +
-//            "    repositories {\n" +
-//            "        mavenLocal()\n" +
-//            "        mavenCentral()\n" +
-//            "        gradlePluginPortal()\n" +
-//            "        repositories {\n" +
-//            "            fun String.findProperty() = System.getenv(this) ?: (if (extra.has(this)) extra[this].toString() else null)\n" +
-//            "            val mavenUser = \"ONEAI_MAVEN_USER\".findProperty()\n" +
-//            "            val mavenPassword = \"ONEAI_MAVEN_TOKEN\".findProperty()\n" +
-//            "\n" +
-//            "            maven {\n" +
-//            "                name = \"oneai\"\n" +
-//            "                url = java.net.URI(\"https://artifactory.devops.telekom.de/artifactory/oneai-maven/\")\n" +
-//            "                credentials {\n" +
-//            "                    username = mavenUser\n" +
-//            "                    password = mavenPassword\n" +
-//            "                }\n" +
-//            "            }\n" +
-//            "        }\n" +
-//            "    }\n" +
-//            "}"
-
         const val GRADLE_WRAPPER_PROPERTIES = "" +
             "        distributionBase=GRADLE_USER_HOME\n" +
             "        distributionPath=wrapper/dists\n" +
@@ -75,10 +52,10 @@ kotlin {
             "        zipStoreBase=GRADLE_USER_HOME\n" +
             "        zipStorePath=wrapper/dists"
 
-        val arcVersionL = "0.0.1-SNAPSHOT"
+        const val arcVersion = "0.1.0-SNAPSHOT"
 
-        val GRADLE_DEPENDENCIES = """
-    val arcVersion = "$arcVersionL"
+        const val GRADLE_DEPENDENCIES = """
+    val arcVersion = "$arcVersion"
 
     implementation("org.eclipse.lmos:arc-scripting:${'$'}arcVersion")
     implementation("org.eclipse.lmos:arc-azure-client:${'$'}arcVersion")

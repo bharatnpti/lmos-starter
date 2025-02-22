@@ -1,6 +1,7 @@
 package com.telekom.iaplatformcli.generate.agent
 
 import com.telekom.iaplatformcli.constants.CliConstants
+import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
@@ -11,7 +12,7 @@ class AgentGenerator(private val sourceCode: KotlinSourceCode) {
     fun generateAgent(projectPath: String, basePackageName: String, classDir: String, agentName: String, steps: List<String>) {
         val packageName = basePackageName.plus(".$classDir")
         // check dirname, if present , go into /src/main/kotlin
-        val kotlinSourcePath = Path.of(projectPath).resolve("src/main/kotlin").absolute()
+        val kotlinSourcePath = Path.of(projectPath).resolve(SRC_MAIN_KOTLIN).absolute()
         val agentFolderPath = FileUtil.createDirectoryStructure(kotlinSourcePath, classDir)
 
         val agentConstantsFile = File("$agentFolderPath/AgentConstants.kt")

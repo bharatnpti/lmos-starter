@@ -1,47 +1,37 @@
 package com.telekom.iaplatformcli.generate
 
-import com.telekom.iaplatformcli.constants.CliConstants
+import com.telekom.agents.AgentConfig
+import com.telekom.agents.ProjectConfig
+import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.agent.AgentControllerGenerator
 import com.telekom.iaplatformcli.generate.agent.AgentGenerator
-import com.telekom.iaplatformcli.generate.agent.StepGenerator
 import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinLmosImports
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
-import java.nio.file.Path
-import kotlin.io.path.absolute
 
 class ProjectGenerator {
 
     fun generateProject(
-        projectName: String,
-        dirName: String,
-        agentPackageName: String,
-        agentName: String,
-        steps: List<String>,
+        projectConfig: ProjectConfig,
+        agentConfig: AgentConfig
     ) {
-        createProjectStructure(dirName) // create directory upto project if not exist
+        val dirName = projectConfig.projectDir
+        val projectName = projectConfig.projectName
+        val agentPackageName = projectConfig.packageName
+
+        createProjectStructure(projectName) // create directory upto project if not exist
         val projectPath = "$dirName/$projectName"
         createDirectory(projectPath)
         createPackageStructure(projectPath) // create src directory if not exist
-
-        // we got agent package, remove the last directory and use the rest as base package
-//        val packageParts = agentPackageName.split(".")
-//        val basePackage = packageParts.subList(0, packageParts.size - 1).joinToString(separator = ".")
-//        println("packageParts: $packageParts, basePackage: $basePackage")
 
         createBuildFiles(projectPath, agentPackageName, projectName)
         createSpringBootApplicationClass(projectPath, agentPackageName, projectName)
         createSpringBootResourceFolder(projectPath)
 
-        val collectedSteps = mutableListOf<String>()
-        collectedSteps.addAll(steps)
+        createAgentKts(createAgentsFolder(projectPath), agentConfig.name, agentConfig.description, agentConfig.model, agentConfig.prompt)
 
-        createAgentKts(createAgentsFolder(projectPath), agentName, "description", "model", "prompt")
-
-//        createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
-//        createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
         FileUtil.copyResourceToDirectory("gradlew", projectPath)
     }
 
@@ -62,17 +52,13 @@ class ProjectGenerator {
                     model { "$model" }
                     tools = AllTools
                     prompt {
-                        \"$prompt\"
+                    ${"\"\"\""}$prompt${"\"\"\""}
                     }
                 }
             """.trimIndent()
         )
         println("Successfully generated code for agent: $agentName")
 
-    }
-
-    private fun createGenerateResponseStep(projectPath: String, packageName: String, stepDir: String, stepName: String) {
-        StepGenerator(KotlinSourceCode(KotlinLmosImports())).generateStep(projectPath, packageName, stepDir, stepName)
     }
 
     private fun createAgentRestController(projectPath: String, packageName: String, dirName: String, agentName: String, agentPackage: String) {
@@ -99,7 +85,7 @@ fun main(args: Array<String>) {
 }
         """.trimIndent()
 
-        val filePath = "$projectPath/src/main/kotlin/$className.kt"
+        val filePath = "$projectPath/$SRC_MAIN_KOTLIN/$className.kt"
 
         val mainFile = File(filePath)
         mainFile.createNewFile()
@@ -185,7 +171,7 @@ management:
     }
 
     private fun createPackageStructure(projectName: String) {
-        createDirectory("$projectName/src/main/kotlin/")
+        createDirectory("$projectName/$SRC_MAIN_KOTLIN")
     }
 
     private fun createAgentsFolder(projectName: String): String {

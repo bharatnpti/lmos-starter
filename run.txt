@@ -1,0 +1,8 @@
+java -jar ./build/libs/lmos-cli-0.0.1-SNAPSHOT.jar \
+--d /Users/bharatbhushan/IdeaProjects/Kinetiqx/starter-temp \
+--p com.tele \
+--prj project_nam2 \
+--an starter_agent \
+--am some_model \
+--ad "Agent description here" \
+--ap "Agent prompt here"

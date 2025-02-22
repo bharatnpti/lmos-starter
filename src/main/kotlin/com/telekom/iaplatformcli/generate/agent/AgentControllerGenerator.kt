@@ -1,5 +1,6 @@
 package com.telekom.iaplatformcli.generate.agent
 
+import com.telekom.iaplatformcli.constants.CliConstants.Companion.SRC_MAIN_KOTLIN
 import com.telekom.iaplatformcli.generate.sourcecode.KotlinSourceCode
 import com.telekom.iaplatformcli.utils.FileUtil
 import java.io.File
@@ -10,7 +11,7 @@ class AgentControllerGenerator(private val sourceCode: KotlinSourceCode) {
 
     fun generateController(projectPath: String, basePackageName: String, classDir: String, agentName: String, agentsPackage: String) {
         val packageName = basePackageName.plus(".$classDir")
-        val kotlinSourcePath = Path.of(projectPath).resolve("src/main/kotlin").absolute()
+        val kotlinSourcePath = Path.of(projectPath).resolve(SRC_MAIN_KOTLIN).absolute()
         val controllerFolderPath = FileUtil.createDirectoryStructure(kotlinSourcePath, classDir)
 
         val controllerFile = File("$controllerFolderPath/${agentName.replaceFirstChar { it.titlecase() }}Controller.kt")

@@ -1,5 +1,7 @@
 package com.telekom.iaplatformcli
 
+import com.telekom.agents.AgentConfig
+import com.telekom.agents.ProjectConfig
 import com.telekom.iaplatformcli.generate.ProjectGenerator
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -9,7 +11,7 @@ import kotlin.system.exitProcess
 @SpringBootApplication
 open class LmosCliApplication : CommandLineRunner {
 
-    fun parseNamedArgumentsWithArray(args: Array<String>): Map<String, List<String>> {
+    private fun parseNamedArgumentsWithArray(args: Array<String>): Map<String, List<String>> {
         val namedArgs = mutableMapOf<String, MutableList<String>>()
         var i = 0
         var currentOption = ""
@@ -33,24 +35,39 @@ open class LmosCliApplication : CommandLineRunner {
         val validLists = mutableListOf<String>()
         args.forEach { validLists.add(it.orEmpty()) }
 
-        val namedArgs = parseNamedArgumentsWithArray(validLists.toTypedArray())
+        val namedArgs: Map<String, List<String>> = parseNamedArgumentsWithArray(validLists.toTypedArray())
 
         if (namedArgs.size < 2) {
-            println("Insufficient arguments. Exiting...")
+            println("Insufficient arguments. Exiting... ${namedArgs.keys}")
             exitProcess(0)
         }
 
-        var projectDir = namedArgs["--dirName"].orEmpty()
-        val packageName = namedArgs["--packageName"].orEmpty()
-        val agentName = namedArgs["--agentName"].orEmpty()
-        val projectName = namedArgs["--projectName"].orEmpty()
+        val projectDir = namedArgs.getFirstOrThrow("--dir", "--d")
+        val packageName = namedArgs.getFirstOrThrow("--pkg", "--p")
+        val projectName = namedArgs.getFirstOrThrow("--proj", "--prj")
 
-        val steps = namedArgs["--steps"].orEmpty()
+        val agentName = namedArgs.getFirstOrThrow("--agent", "--an")
+        val agentModel = namedArgs.getFirstOrThrow("--model", "--am")
+        val agentDescriptions = namedArgs.getFirstOrThrow("--desc", "--ad")
+        val agentPrompt = namedArgs.getFirstOrThrow("--prompt", "--ap")
 
-        ProjectGenerator().generateProject(projectName[0], projectDir[0], packageName[0], agentName[0], steps)
-        println("Successfully generated project: ${projectName[0]}")
+
+        val projectConfig = ProjectConfig(projectDir, packageName, projectName)
+        val agentConfig = AgentConfig(agentName, agentModel, agentDescriptions, agentPrompt)
+
+        ProjectGenerator().generateProject(projectConfig, agentConfig)
+        println("Successfully generated project: $projectName")
         exitProcess(0)
     }
+
+    private fun Map<String, List<String>>.getFirstOrThrow(vararg keys: String): String {
+        for (key in keys) {
+            this[key]?.firstOrNull()?.let { return it }
+        }
+        throw IllegalArgumentException("Missing value for keys: ${keys.joinToString(", ")}")
+    }
+
+
 }
 
 fun main(args: Array<String>) {
