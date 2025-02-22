@@ -27,20 +27,18 @@ class ProjectGenerator {
         createPackageStructure(projectPath) // create src directory if not exist
 
         // we got agent package, remove the last directory and use the rest as base package
-        val packageParts = agentPackageName.split(".")
-        val basePackage = packageParts.subList(0, packageParts.size - 1).joinToString(separator = ".")
+//        val packageParts = agentPackageName.split(".")
+//        val basePackage = packageParts.subList(0, packageParts.size - 1).joinToString(separator = ".")
+//        println("packageParts: $packageParts, basePackage: $basePackage")
 
-        createBuildFiles(projectPath, basePackage, projectName)
-        createSpringBootApplicationClass(projectPath, basePackage, projectName)
+        createBuildFiles(projectPath, agentPackageName, projectName)
+        createSpringBootApplicationClass(projectPath, agentPackageName, projectName)
         createSpringBootResourceFolder(projectPath)
-//        createGenerateResponseStep(projectPath, basePackage, "step", "GenerateResponse")
 
         val collectedSteps = mutableListOf<String>()
         collectedSteps.addAll(steps)
 
-        val agentsDirectory = "$projectPath/agents"
-        createAgentsFolder(agentsDirectory) // create src directory if not exist
-        createAgentKts(agentsDirectory, agentName, "description", "model", "prompt")
+        createAgentKts(createAgentsFolder(projectPath), agentName, "description", "model", "prompt")
 
 //        createAgent(projectPath, basePackage, packageParts.last(), agentName, collectedSteps.toList())
 //        createAgentRestController(projectPath, basePackage, "controller", agentName, basePackage.plus(".${packageParts.last()}"))
@@ -50,7 +48,7 @@ class ProjectGenerator {
     private fun createAgentKts(projectPath: String, agentName: String, description: String, model: String, prompt: String) {
 
         // and then create the agent file inside it
-        val agentFile = File("$projectPath/${agentName.replaceFirstChar { it.titlecase() }}.agent.kts")
+        val agentFile = File("$projectPath/$agentName.agent.kts")
 
         agentFile.writeText(
             """
@@ -59,29 +57,12 @@ class ProjectGenerator {
                 // SPDX-License-Identifier: Apache-2.0
 
                 agent {
-                    name = "assistant-agent"
-                    description = "A helpful assistant that can provide information and answer questions."
-                    model { "GPT-4o" }
+                    name = "$agentName"
+                    description = "$description"
+                    model { "$model" }
                     tools = AllTools
                     prompt {
-                        val customerName = userProfile("name", "")
-
-                        ""${'"'}
-                       # Goal 
-                       You are a helpful assistant that can provide information and answer customer questions.
-                       You answer in a helpful and professional manner.  
-                            
-                       ### Instructions 
-                        - Only answer the customer question in a concise and short way.
-                        - Only provide information the user has explicitly asked for.
-                        - Use the "Knowledge" section to answer customers queries.
-                        - If the customer's question is on a topic not described in the "Knowledge" section nor llm functions, reply that you cannot help with that issue.
-                       
-                       ### Knowledge
-                         **Customer would like to know about Arc.**
-                         - Read the content from https://eclipse-lmos.github.io/arc/ and provide the answer.
-                       
-                      ""${'"'}
+                        \"$prompt\"
                     }
                 }
             """.trimIndent()
@@ -102,7 +83,7 @@ class ProjectGenerator {
         val className = FileUtil.getMainApplicationName(mainProjectName)
 
         val fileContent = """
-        package $packageName
+package $packageName
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -207,8 +188,10 @@ management:
         createDirectory("$projectName/src/main/kotlin/")
     }
 
-    private fun createAgentsFolder(projectName: String) {
-        createDirectory("$projectName/agents")
+    private fun createAgentsFolder(projectName: String): String {
+        val agentDirectory = "$projectName/agents"
+        createDirectory(agentDirectory)
+        return agentDirectory
     }
 
     private fun createDirectory(directoryPath: String) {
