@@ -59,12 +59,6 @@ class GradleBuildWriter : AbstractBuildWriter("GRADLE") {
 
     private fun createBuildGradle(projectDir: Path, packageName: String, projectName: String) {
         val buildFile = projectDir.resolve("build.gradle.kts")
-//        Files.newBufferedWriter(buildFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING).use { writer ->
-//            writer.write(BuildScriptGenerator.generateGradlePlugins(packageName))
-//            writer.write(BuildScriptGenerator.generateRepositories())
-//            writer.write(BuildScriptGenerator.generateDependencies())
-//            writer.write(BuildScriptGenerator.generateGradleTasks(projectName))
-//        }
 
         writeToFile(buildFile, buildScriptContent(packageName, projectName))
 

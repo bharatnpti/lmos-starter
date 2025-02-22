@@ -3,6 +3,7 @@ package com.telekom.iaplatformcli.utils
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
 
 object FileUtil {
 
@@ -28,17 +29,7 @@ object FileUtil {
             return "${mainProjectName.replaceFirstChar { it.uppercaseChar() }}Application"
         }
 
-        fun createDirectoryStructure(basePath: Path, dirName: String): Path {
-            val newDirectoryPath = basePath.resolve(dirName)
-
-            return try {
-                if (Files.notExists(newDirectoryPath)) {
-                    Files.createDirectories(newDirectoryPath)
-                }
-                newDirectoryPath
-            } catch (e: IOException) {
-                println("Error occurred while creating folder: ${e.message}")
-                basePath
-            }
-        }
+    fun createDirectories(path: Path) {
+        path.createDirectories()
+    }
 }

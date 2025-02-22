@@ -2,13 +2,24 @@ package com.telekom.iaplatformcli
 
 import com.telekom.agents.AgentConfig
 import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.generate.ProjectGenerator
+import com.telekom.iaplatformcli.generate.ne.GradleSpringProjectFactory
+import com.telekom.iaplatformcli.generate.ne.ProjectFactory
 
 
 open class LmosAgentGeneratorService {
 
     fun generateAgentProject(projectConfig: ProjectConfig, agentConfig: AgentConfig) {
-        ProjectGenerator().generateProject(projectConfig, agentConfig)
+
+        val factory: ProjectFactory = GradleSpringProjectFactory()
+
+        // Use the factory to create build tool and framework objects
+        val buildTool = factory.createBuildTool()
+        val framework = factory.createFramework()
+
+        // Setup the build tool and framework
+        buildTool.setupBuildTool(projectConfig, agentConfig)
+        framework.setupFramework(projectConfig, agentConfig)
+
         println("Successfully generated project: ${projectConfig.projectName}")
     }
 
@@ -20,9 +31,9 @@ fun main() {
         "--p" to "com.tele",
         "--prj" to "project_nam2",
         "--an" to "starter_agent",
-        "--am" to "some_model",
-        "--ad" to "Agent description here",
-        "--ap" to "Agent prompt here"
+        "--am" to "some_model2",
+        "--ad" to "Agent description here2",
+        "--ap" to "Agent prompt here2"
     )
 
     val projectDir = namedArgs.getValue("--d")
