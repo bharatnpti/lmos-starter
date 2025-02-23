@@ -1,10 +1,10 @@
-package com.telekom.iaplatformcli
+package org.eclipse.lmos.starter
 
-import com.telekom.agents.AgentConfig
-import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.MustacheTemplateEngine
-import com.telekom.iaplatformcli.generate.ne.GradleSpringProjectFactory
-import com.telekom.iaplatformcli.generate.ne.ProjectFactory
+import org.eclipse.lmos.starter.config.AgentConfig
+import org.eclipse.lmos.starter.config.ProjectConfig
+import org.eclipse.lmos.starter.template.engine.MustacheTemplateEngine
+import org.eclipse.lmos.starter.factory.GradleSpringProjectFactory
+import org.eclipse.lmos.starter.factory.ProjectFactory
 
 
 open class LmosAgentGeneratorService {

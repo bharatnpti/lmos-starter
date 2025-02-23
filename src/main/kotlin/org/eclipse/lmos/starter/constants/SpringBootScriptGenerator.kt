@@ -1,6 +1,7 @@
-package com.telekom.iaplatformcli.constants
+package org.eclipse.lmos.starter.constants
 
-import com.telekom.agents.AgentConfig
+import org.eclipse.lmos.starter.config.AgentConfig
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
 import java.io.Reader
 
 class SpringBootScriptGenerator(private val templateEngine: TemplateEngine) {

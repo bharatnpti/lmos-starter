@@ -1,4 +1,4 @@
-package com.telekom.iaplatformcli.constants
+package org.eclipse.lmos.starter.config
 
 object Versions {
     const val KOTLIN_VERSION = "2.0.20"

@@ -1,4 +1,4 @@
-package com.telekom.agents
+package org.eclipse.lmos.starter.config
 
 data class ProjectConfig(
     val projectDir: String,

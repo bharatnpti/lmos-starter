@@ -1,11 +1,12 @@
-package com.telekom.iaplatformcli.generate.ne
+package org.eclipse.lmos.starter.buildtool
 
-import com.telekom.agents.AgentConfig
-import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.TemplateEngine
-import com.telekom.iaplatformcli.generate.build.GradleBuildWriter
-import com.telekom.iaplatformcli.utils.FileUtil
-import com.telekom.iaplatformcli.utils.FileUtil.resolveSrcPath
+import org.eclipse.lmos.starter.buildtool.writer.GradleBuildWriter
+import org.eclipse.lmos.starter.config.AgentConfig
+import org.eclipse.lmos.starter.config.ProjectConfig
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
+import org.eclipse.lmos.starter.factory.BuildTool
+import org.eclipse.lmos.starter.utils.FileUtil
+import org.eclipse.lmos.starter.utils.FileUtil.resolveSrcPath
 import java.nio.file.Path
 import java.nio.file.Paths
 

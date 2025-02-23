@@ -1,9 +1,10 @@
-package com.telekom.iaplatformcli.generate.ne
+package org.eclipse.lmos.starter.framework
 
-import com.telekom.agents.AgentConfig
-import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.TemplateEngine
-import com.telekom.iaplatformcli.generate.build.SpringFrameworkWriter
+import org.eclipse.lmos.starter.config.AgentConfig
+import org.eclipse.lmos.starter.config.ProjectConfig
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
+import org.eclipse.lmos.starter.factory.Framework
+import org.eclipse.lmos.starter.framework.writer.SpringFrameworkWriter
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.createDirectories

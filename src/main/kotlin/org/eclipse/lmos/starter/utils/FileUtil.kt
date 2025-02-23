@@ -1,4 +1,4 @@
-package com.telekom.iaplatformcli.utils
+package org.eclipse.lmos.starter.utils
 
 import java.io.IOException
 import java.nio.file.Files

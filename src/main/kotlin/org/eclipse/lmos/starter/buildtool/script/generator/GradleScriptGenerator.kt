@@ -1,5 +1,7 @@
-package com.telekom.iaplatformcli.constants
+package org.eclipse.lmos.starter.buildtool.script.generator
 
+import org.eclipse.lmos.starter.config.Versions
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
 import java.io.Reader
 
 class GradleScriptGenerator(private val templateEngine: TemplateEngine) {

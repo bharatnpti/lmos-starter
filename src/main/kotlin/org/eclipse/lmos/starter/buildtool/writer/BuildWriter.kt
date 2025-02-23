@@ -1,8 +1,8 @@
-package com.telekom.iaplatformcli.generate.build
+package org.eclipse.lmos.starter.buildtool.writer
 
-import com.telekom.iaplatformcli.constants.GradleScriptGenerator
-import com.telekom.iaplatformcli.constants.TemplateEngine
-import com.telekom.iaplatformcli.utils.FileUtil
+import org.eclipse.lmos.starter.buildtool.script.generator.GradleScriptGenerator
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
+import org.eclipse.lmos.starter.utils.FileUtil
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption

@@ -1,8 +1,8 @@
-package com.telekom.iaplatformcli.generate.ne
+package org.eclipse.lmos.starter.factory
 
-import com.telekom.agents.AgentConfig
-import com.telekom.agents.ProjectConfig
-import com.telekom.iaplatformcli.constants.TemplateEngine
+import org.eclipse.lmos.starter.config.AgentConfig
+import org.eclipse.lmos.starter.config.ProjectConfig
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
 
 interface BuildTool {
     fun setupBuildTool(projectConfig: ProjectConfig, agentConfig: AgentConfig, templateEngine: TemplateEngine)

@@ -1,4 +1,4 @@
-package com.telekom.iaplatformcli.constants
+package org.eclipse.lmos.starter.template.engine
 
 
 import com.github.mustachejava.DefaultMustacheFactory

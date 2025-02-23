@@ -1,4 +1,4 @@
-import com.telekom.iaplatformcli.LmosAgentGeneratorService
+import org.eclipse.lmos.starter.iaplatformcli.LmosAgentGeneratorService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

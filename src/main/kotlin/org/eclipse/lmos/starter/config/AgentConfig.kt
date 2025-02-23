@@ -1,4 +1,4 @@
-package com.telekom.agents
+package org.eclipse.lmos.starter.config
 
 import java.nio.file.Path
 
