@@ -18,14 +18,19 @@ class SpringFramework : Framework {
         println("Setting up Spring Framework.")
 
         val projectDir = Paths.get(projectConfig.projectDir).resolve(projectConfig.projectName)
-        val agentsFolder = createAgentsFolder(projectDir, agentConfig.agentFolder)
+        val agentDir = createAgentsFolder(projectDir)
         createSpringBootResourceFolder(projectDir)
 
-        createSpringBootFiles(projectConfig, agentConfig.copy(agentFolder = agentsFolder), templateEngine)
+        createSpringBootFiles(projectConfig, agentConfig, templateEngine, agentDir)
     }
 
-    private fun createSpringBootFiles(projectConfig: ProjectConfig, agentConfig: AgentConfig, templateEngine: TemplateEngine) {
-        SpringFrameworkWriter(templateEngine).createFrameworkFiles(projectConfig, agentConfig)
+    private fun createSpringBootFiles(
+        projectConfig: ProjectConfig,
+        agentConfig: AgentConfig,
+        templateEngine: TemplateEngine,
+        agentDir: Path
+    ) {
+        SpringFrameworkWriter(templateEngine).createFrameworkFiles(projectConfig, agentConfig, agentDir)
     }
 
     private fun createSpringBootResourceFolder(projectDir: Path) {
@@ -33,7 +38,7 @@ class SpringFramework : Framework {
         resourceFolderPath.createDirectories()
     }
 
-    private fun createAgentsFolder(projectDir: Path, agentFolder: Path?) = agentFolder ?: projectDir.resolve("agents").apply { createDirectories() }
+    private fun createAgentsFolder(projectDir: Path) = projectDir.resolve("agents").apply { createDirectories() }
 
 
 }

@@ -5,16 +5,16 @@ import org.eclipse.lmos.starter.config.ProjectConfig
 import org.eclipse.lmos.starter.template.engine.MustacheTemplateEngine
 import org.eclipse.lmos.starter.factory.GradleSpringProjectFactory
 import org.eclipse.lmos.starter.factory.ProjectFactory
+import org.eclipse.lmos.starter.template.engine.TemplateEngine
 
 
 open class LmosAgentGeneratorService {
 
-    fun generateAgentProject(projectFactory: ProjectFactory, projectConfig: ProjectConfig, agentConfig: AgentConfig) {
+    fun generateAgentProject(projectFactory: ProjectFactory, projectConfig: ProjectConfig, agentConfig: AgentConfig, templateEngine: TemplateEngine = MustacheTemplateEngine()) {
 
         // Use the factory to create build tool and framework objects
         val buildTool = projectFactory.createBuildTool()
         val framework = projectFactory.createFramework()
-        val templateEngine = MustacheTemplateEngine()
 
         // Setup the build tool and framework
         buildTool.setupBuildTool(projectConfig, agentConfig, templateEngine)
@@ -46,7 +46,7 @@ fun main() {
     val agentPrompt = namedArgs.getValue("--ap")
 
     val projectConfig = ProjectConfig(projectDir, packageName, projectName)
-    val agentConfig = AgentConfig(agentName, agentModel, agentDescriptions, agentPrompt, null)
+    val agentConfig = AgentConfig(agentName, agentModel, agentDescriptions, agentPrompt)
 
     LmosAgentGeneratorService().generateAgentProject(GradleSpringProjectFactory(), projectConfig, agentConfig)
 }

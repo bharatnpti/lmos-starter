@@ -12,7 +12,7 @@ import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 
 interface FrameworkWriter {
-    fun createFrameworkFiles(projectConfig: ProjectConfig, agentConfig: AgentConfig)
+    fun createFrameworkFiles(projectConfig: ProjectConfig, agentConfig: AgentConfig, agentDir: Path)
     fun getProjectType(): String
 }
 
@@ -31,7 +31,7 @@ class SpringFrameworkWriter(templateEngine: TemplateEngine) : AbstractFrameworkW
 
     private val springBootScriptGenerator = SpringBootScriptGenerator(templateEngine)
 
-    override fun createFrameworkFiles(projectConfig: ProjectConfig, agentConfig: AgentConfig) {
+    override fun createFrameworkFiles(projectConfig: ProjectConfig, agentConfig: AgentConfig, agentDir: Path) {
 
         val projectDir = Paths.get(projectConfig.projectDir).resolve(projectConfig.projectName)
 
@@ -42,7 +42,6 @@ class SpringFrameworkWriter(templateEngine: TemplateEngine) : AbstractFrameworkW
         val resourceFolderPath = projectDir.resolve("src").resolve("main").resolve("resources")
         writeToFile(resourceFolderPath.resolve("application.yml"), springBootScriptGenerator.generateApplicationYaml())
 
-        val agentDir = agentConfig.agentFolder ?: projectDir
         val agentFile = agentDir.resolve("${agentConfig.name}.agent.kts")
         writeToFile(agentFile, springBootScriptGenerator.generateAgent(agentConfig))
         println("Successfully generated code for agent: $agentConfig")

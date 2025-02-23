@@ -8,7 +8,7 @@ class SpringBootScriptGenerator(private val templateEngine: TemplateEngine) {
 
     fun generateAgent(agentConfig: AgentConfig): String {
         val context = mapOf(
-            "agentName" to agentConfig.name,
+            "agentName" to agentConfig.name.replace(Regex("[^a-zA-Z]"), ""),
             "description" to agentConfig.description,
             "model" to agentConfig.model,
             "prompt" to agentConfig.prompt
