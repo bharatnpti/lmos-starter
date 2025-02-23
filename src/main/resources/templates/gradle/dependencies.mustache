@@ -1,0 +1,22 @@
+dependencies {
+    val arcVersion = "{{arcVersion}}"
+
+    implementation("org.eclipse.lmos:arc-scripting:$arcVersion")
+    implementation("org.eclipse.lmos:arc-azure-client:$arcVersion")
+    implementation("com.azure:azure-identity:{{azureIdentityVersion}}")
+    implementation("org.eclipse.lmos:arc-spring-boot-starter:$arcVersion")
+    implementation("org.eclipse.lmos:arc-ollama-client:$arcVersion")
+    implementation("org.eclipse.lmos:arc-graphql-spring-boot-starter:$arcVersion")
+    implementation("com.graphql-java:graphql-java:{{graphqlJavaVersion}}")
+
+    // Spring Boot
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Metrics
+    implementation("io.micrometer:micrometer-registry-prometheus:{{micrometerVersion}}")
+
+    // Test
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:mongodb:{{testcontainersVersion}}")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
