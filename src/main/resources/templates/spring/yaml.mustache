@@ -43,13 +43,15 @@ management:
     web:
       base-path: /
       exposure:
-        include: prometheus,metrics,info,health
+        include: prometheus,metrics,info,health,shutdown
   endpoint:
     metrics:
       enabled: true
     health:
       probes:
         enabled: true
+    shutdown:
+      enabled: true
   prometheus:
     metrics:
       export:
